@@ -80,31 +80,31 @@ export default function Portfolio() {
         <div className="relative container mx-auto px-4 py-16 max-w-7xl">
           <div className="text-center space-y-6">
             <div className="space-y-2">
-              <h1 className="text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                 안녕하세요, 진소희입니다 👋
               </h1>
-              <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
                 <span className="font-semibold text-blue-600">백엔드 개발자</span>로 성장하며, 
                 Java와 Spring을 중심으로 안정적이고 확장 가능한 서비스를 만들어갑니다.
               </p>
-              <p className="text-lg text-gray-500 max-w-xl mx-auto">
+              <p className="text-base sm:text-lg text-gray-500 max-w-xl mx-auto">
                 협업을 통한 문제 해결과 지속적인 학습을 통해 더 나은 개발자가 되고자 합니다.
               </p>
             </div>
             
-            <div className="flex justify-center items-center space-x-6 pt-4">
+            <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4 pt-4">
               <a 
                 href="https://63wlsthgml.tistory.com" 
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors shadow-lg hover:shadow-xl"
               >
                 <span>📝</span>
                 <span>기술 블로그</span>
               </a>
               <a 
                 href="mailto:63wlsthgml@gmail.com"
-                className="flex items-center space-x-2 px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors shadow-lg hover:shadow-xl"
               >
                 <Mail size={18} />
                 <span>이메일</span>
@@ -113,7 +113,7 @@ export default function Portfolio() {
                 href="https://github.com/soheeGit"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors shadow-lg hover:shadow-xl"
+                className="w-full sm:w-auto flex items-center justify-center space-x-2 px-6 py-3 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors shadow-lg hover:shadow-xl"
               >
                 <Github size={18} />
                 <span>GitHub</span>
@@ -157,16 +157,16 @@ export default function Portfolio() {
                 <Card key={index} className="group hover:shadow-2xl transition-all duration-300 border-0 shadow-lg bg-white/80 backdrop-blur-sm">
                   <CardContent className="p-6">
                     <div className="flex justify-between items-start mb-4">
-                      <div>
+                      <div className="flex-1 min-w-0">
                         <h3 className="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
                           {project.title}
                         </h3>
-                        <div className="flex items-center space-x-4 mt-1 text-sm text-gray-500">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 mt-1 text-sm text-gray-500 space-y-1 sm:space-y-0">
                           <span className="flex items-center space-x-1">
                             <Calendar size={14} />
                             <span>{project.period}</span>
                           </span>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                          <span className={`self-start px-2 py-1 rounded-full text-xs font-medium ${
                             project.status === '완료' 
                               ? 'bg-green-100 text-green-800' 
                               : 'bg-blue-100 text-blue-800'
@@ -175,7 +175,7 @@ export default function Portfolio() {
                           </span>
                         </div>
                       </div>
-                      <div className="flex space-x-2">
+                      <div className="flex space-x-2 ml-4">
                         {project.github && (
                           <a 
                             href={project.github}
@@ -501,10 +501,10 @@ export default function Portfolio() {
                   새로운 도전과 학습을 통해 더 나은 개발자가 되고 싶습니다. 
                   협업할 수 있는 기회가 있다면 언제든 연락주세요.
                 </p>
-                <div className="flex justify-center space-x-4">
+                <div className="flex flex-col sm:flex-row justify-center gap-4">
                   <a 
                     href="mailto:63wlsthgml@gmail.com"
-                    className="flex items-center space-x-2 px-6 py-3 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-colors"
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-colors"
                   >
                     <Mail size={18} />
                     <span>이메일 보내기</span>
@@ -513,7 +513,7 @@ export default function Portfolio() {
                     href="https://63wlsthgml.tistory.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center space-x-2 px-6 py-3 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-colors"
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-white/20 backdrop-blur-sm rounded-lg hover:bg-white/30 transition-colors"
                   >
                     <span>📝</span>
                     <span>블로그 방문</span>
