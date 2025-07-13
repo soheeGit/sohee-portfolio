@@ -67,9 +67,7 @@ export default function Portfolio() {
               {/* Profile Photo */}
               <div className="flex-shrink-0">
                 <div className="w-80 h-80 bg-gray-200 rounded-2xl flex items-center justify-center shadow-lg">
-                  <User size={80} className="text-gray-400" />
-                  {/* 여기에 실제 사진을 넣으시면 됩니다 */}
-                  {/* <img src="/path/to/your/photo.jpg" alt="진소희" className="w-full h-full object-cover rounded-2xl" /> */}
+                  <img src="src/assets/KakaoTalk_Photo_2025-07-14-05-20-43.jpeg" className="w-full h-full object-cover rounded-2xl" />
                 </div>
               </div>
 
@@ -1137,7 +1135,9 @@ export default function Portfolio() {
           {/* Profile */}
           <div className="space-y-4">
             <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center">
-              <User size={32} className="text-gray-600" />
+              <img src="src/assets/진소희증명사진.jpg" alt="진소희" className="w-full h-full object-cover rounded-full" />
+              <div className="space-y-3 text-center">
+              </div>
             </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">진소희</h1>
