@@ -45,10 +45,10 @@ export default function Portfolio() {
 
   const navigationItems = [
     { id: 'about', label: 'About', icon: User },
+    { id: 'tech', label: 'Tech Stack', icon: Server },
     { id: 'projects', label: 'Projects', icon: Code },
     { id: 'troubleshooting', label: 'Problem Solving', icon: AlertTriangle },
     { id: 'learning', label: 'Learning', icon: GraduationCap },
-    { id: 'tech', label: 'Tech Stack', icon: Server },
   ];
 
   const contactInfo = [
@@ -154,6 +154,258 @@ export default function Portfolio() {
                       '유연하게 사고하고, 단단하게 구현하는 개발자'로 성장하기 위해
                       꾸준히 학습하고, 다양한 도전을 이어가고 있습니다.
                     </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Tech Stack Section */}
+          <section id="tech" className="min-h-screen p-6 lg:p-12 border-t border-gray-200">
+            <div className="space-y-8 py-8">
+              <div className="space-y-3">
+                <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">Tech Stack</h1>
+                <p className="text-lg lg:text-xl text-gray-600">다양한 프로젝트를 통해 경험하고 학습한 기술들</p>
+                <div className="w-20 h-1 bg-gray-900 rounded-full"></div>
+              </div>
+              <div className="grid gap-8">
+                {/* Backend */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
+                      <Server className="text-gray-700" size={24} />
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">Backend Development</h2>
+                      <p className="text-gray-600">서버 사이드 애플리케이션 개발</p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-gray-900">Main Stack</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="font-medium text-gray-900">Java 17</span>
+                          <span className="text-sm text-gray-600">Primary Language</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="font-medium text-gray-900">Spring Boot 3.5</span>
+                          <span className="text-sm text-gray-600">Framework</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="font-medium text-gray-900">Spring Security</span>
+                          <span className="text-sm text-gray-600">Authentication</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="font-medium text-gray-900">JPA/Hibernate</span>
+                          <span className="text-sm text-gray-600">ORM</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-gray-900">Additional</h3>
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="font-medium text-gray-900">Node.js</span>
+                          <span className="text-sm text-gray-600">Runtime</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="font-medium text-gray-900">Express.js</span>
+                          <span className="text-sm text-gray-600">Web Framework</span>
+                        </div>
+                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                          <span className="font-medium text-gray-900">Socket.io</span>
+                          <span className="text-sm text-gray-600">Real-time</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Database */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                      <span className="text-blue-600 text-xl">🗄️</span>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">Database & Storage</h2>
+                      <p className="text-gray-600">데이터 저장 및 관리</p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">RDBMS</h3>
+                      <div className="space-y-2">
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">PostgreSQL</div>
+                          <div className="text-sm text-gray-600">우리.zip 메인 DB</div>
+                        </div>
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">MySQL</div>
+                          <div className="text-sm text-gray-600">PetTalk, StudyGround</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">Cache</h3>
+                      <div className="p-3 bg-gray-50 rounded-lg">
+                        <div className="font-medium text-gray-900">Redis</div>
+                        <div className="text-sm text-gray-600">캐싱, 세션, 분산 락</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">ORM</h3>
+                      <div className="space-y-2">
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">JPA/Hibernate</div>
+                          <div className="text-sm text-gray-600">Java 기반</div>
+                        </div>
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">Sequelize</div>
+                          <div className="text-sm text-gray-600">Node.js 기반</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* DevOps & Infrastructure */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                      <span className="text-green-600 text-xl">☁️</span>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">DevOps & Infrastructure</h2>
+                      <p className="text-gray-600">배포 및 인프라 관리</p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">Cloud Platform</h3>
+                      <div className="space-y-2">
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">AWS EC2</div>
+                          <div className="text-sm text-gray-600">서버 호스팅</div>
+                        </div>
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">AWS RDS</div>
+                          <div className="text-sm text-gray-600">관리형 DB</div>
+                        </div>
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">AWS S3</div>
+                          <div className="text-sm text-gray-600">파일 저장소</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">Containerization</h3>
+                      <div className="p-3 bg-gray-50 rounded-lg">
+                        <div className="font-medium text-gray-900">Docker</div>
+                        <div className="text-sm text-gray-600">컨테이너화, 배포</div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">CI/CD</h3>
+                      <div className="p-3 bg-gray-50 rounded-lg">
+                        <div className="font-medium text-gray-900">GitHub Actions</div>
+                        <div className="text-sm text-gray-600">자동화 배포</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Frontend & Others */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                      <span className="text-purple-600 text-xl">🎨</span>
+                    </div>
+                    <div>
+                      <h2 className="text-2xl font-bold text-gray-900">Frontend & Tools</h2>
+                      <p className="text-gray-600">프론트엔드 및 개발 도구</p>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">Frontend</h3>
+                      <div className="space-y-2">
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">React 18</div>
+                          <div className="text-sm text-gray-600">컴포넌트 기반 UI</div>
+                        </div>
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">JavaScript</div>
+                          <div className="text-sm text-gray-600">Vanilla JS</div>
+                        </div>
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">HTML/CSS</div>
+                          <div className="text-sm text-gray-600">마크업, 스타일링</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">AI Integration</h3>
+                      <div className="space-y-2">
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">LangChain4j</div>
+                          <div className="text-sm text-gray-600">AI 챗봇 구현</div>
+                        </div>
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">Google Gemini</div>
+                          <div className="text-sm text-gray-600">LLM API</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h3 className="text-lg font-semibold text-gray-900">Development</h3>
+                      <div className="space-y-2">
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">Git</div>
+                          <div className="text-sm text-gray-600">버전 관리</div>
+                        </div>
+                        <div className="p-3 bg-gray-50 rounded-lg">
+                          <div className="font-medium text-gray-900">JUnit5</div>
+                          <div className="text-sm text-gray-600">테스트 프레임워크</div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tech Experience Summary */}
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 lg:p-8 rounded-2xl">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">💼 실무 경험 요약</h3>
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="space-y-4">
+                      <h4 className="text-lg font-semibold text-gray-900">프로젝트 적용 경험</h4>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li>• <strong>우리.zip:</strong> Spring Boot + PostgreSQL + Redis + AWS</li>
+                        <li>• <strong>PetTalk:</strong> Spring Boot + MySQL + LangChain4j + Docker</li>
+                        <li>• <strong>StudyGround:</strong> Express.js + React + WebRTC + Socket.io</li>
+                      </ul>
+                    </div>
+                    <div className="space-y-4">
+                      <h4 className="text-lg font-semibold text-gray-900">핵심 역량</h4>
+                      <ul className="space-y-2 text-sm text-gray-700">
+                        <li>• RESTful API 설계 및 구현</li>
+                        <li>• 데이터베이스 설계 및 성능 최적화</li>
+                        <li>• 실시간 통신 시스템 구축 (SSE, WebRTC)</li>
+                        <li>• CI/CD 파이프라인 구축 및 자동화 배포</li>
+                      </ul>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -898,257 +1150,7 @@ export default function Portfolio() {
             </div>
           </section>
 
-          {/* Tech Stack Section */}
-          <section id="tech" className="min-h-screen p-6 lg:p-12 border-t border-gray-200">
-            <div className="space-y-8 py-8">
-              <div className="space-y-3">
-                <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">Tech Stack</h1>
-                <p className="text-lg lg:text-xl text-gray-600">다양한 프로젝트를 통해 경험하고 학습한 기술들</p>
-                <div className="w-20 h-1 bg-gray-900 rounded-full"></div>
-              </div>
-              <div className="grid gap-8">
-                {/* Backend */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center">
-                      <Server className="text-gray-700" size={24} />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900">Backend Development</h2>
-                      <p className="text-gray-600">서버 사이드 애플리케이션 개발</p>
-                    </div>
-                  </div>
 
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Main Stack</h3>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <span className="font-medium text-gray-900">Java 17</span>
-                          <span className="text-sm text-gray-600">Primary Language</span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <span className="font-medium text-gray-900">Spring Boot 3.5</span>
-                          <span className="text-sm text-gray-600">Framework</span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <span className="font-medium text-gray-900">Spring Security</span>
-                          <span className="text-sm text-gray-600">Authentication</span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <span className="font-medium text-gray-900">JPA/Hibernate</span>
-                          <span className="text-sm text-gray-600">ORM</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-900">Additional</h3>
-                      <div className="space-y-3">
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <span className="font-medium text-gray-900">Node.js</span>
-                          <span className="text-sm text-gray-600">Runtime</span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <span className="font-medium text-gray-900">Express.js</span>
-                          <span className="text-sm text-gray-600">Web Framework</span>
-                        </div>
-                        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                          <span className="font-medium text-gray-900">Socket.io</span>
-                          <span className="text-sm text-gray-600">Real-time</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Database */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                      <span className="text-blue-600 text-xl">🗄️</span>
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900">Database & Storage</h2>
-                      <p className="text-gray-600">데이터 저장 및 관리</p>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-3 gap-6">
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-900">RDBMS</h3>
-                      <div className="space-y-2">
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">PostgreSQL</div>
-                          <div className="text-sm text-gray-600">우리.zip 메인 DB</div>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">MySQL</div>
-                          <div className="text-sm text-gray-600">PetTalk, StudyGround</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-900">Cache</h3>
-                      <div className="p-3 bg-gray-50 rounded-lg">
-                        <div className="font-medium text-gray-900">Redis</div>
-                        <div className="text-sm text-gray-600">캐싱, 세션, 분산 락</div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-900">ORM</h3>
-                      <div className="space-y-2">
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">JPA/Hibernate</div>
-                          <div className="text-sm text-gray-600">Java 기반</div>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">Sequelize</div>
-                          <div className="text-sm text-gray-600">Node.js 기반</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* DevOps & Infrastructure */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
-                      <span className="text-green-600 text-xl">☁️</span>
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900">DevOps & Infrastructure</h2>
-                      <p className="text-gray-600">배포 및 인프라 관리</p>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-3 gap-6">
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-900">Cloud Platform</h3>
-                      <div className="space-y-2">
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">AWS EC2</div>
-                          <div className="text-sm text-gray-600">서버 호스팅</div>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">AWS RDS</div>
-                          <div className="text-sm text-gray-600">관리형 DB</div>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">AWS S3</div>
-                          <div className="text-sm text-gray-600">파일 저장소</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-900">Containerization</h3>
-                      <div className="p-3 bg-gray-50 rounded-lg">
-                        <div className="font-medium text-gray-900">Docker</div>
-                        <div className="text-sm text-gray-600">컨테이너화, 배포</div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-900">CI/CD</h3>
-                      <div className="p-3 bg-gray-50 rounded-lg">
-                        <div className="font-medium text-gray-900">GitHub Actions</div>
-                        <div className="text-sm text-gray-600">자동화 배포</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Frontend & Others */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
-                      <span className="text-purple-600 text-xl">🎨</span>
-                    </div>
-                    <div>
-                      <h2 className="text-2xl font-bold text-gray-900">Frontend & Tools</h2>
-                      <p className="text-gray-600">프론트엔드 및 개발 도구</p>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-3 gap-6">
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-900">Frontend</h3>
-                      <div className="space-y-2">
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">React 18</div>
-                          <div className="text-sm text-gray-600">컴포넌트 기반 UI</div>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">JavaScript</div>
-                          <div className="text-sm text-gray-600">Vanilla JS</div>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">HTML/CSS</div>
-                          <div className="text-sm text-gray-600">마크업, 스타일링</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-900">AI Integration</h3>
-                      <div className="space-y-2">
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">LangChain4j</div>
-                          <div className="text-sm text-gray-600">AI 챗봇 구현</div>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">Google Gemini</div>
-                          <div className="text-sm text-gray-600">LLM API</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="space-y-3">
-                      <h3 className="text-lg font-semibold text-gray-900">Development</h3>
-                      <div className="space-y-2">
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">Git</div>
-                          <div className="text-sm text-gray-600">버전 관리</div>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">JUnit5</div>
-                          <div className="text-sm text-gray-600">테스트 프레임워크</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tech Experience Summary */}
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 lg:p-8 rounded-2xl">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">💼 실무 경험 요약</h3>
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold text-gray-900">프로젝트 적용 경험</h4>
-                      <ul className="space-y-2 text-sm text-gray-700">
-                        <li>• <strong>우리.zip:</strong> Spring Boot + PostgreSQL + Redis + AWS</li>
-                        <li>• <strong>PetTalk:</strong> Spring Boot + MySQL + LangChain4j + Docker</li>
-                        <li>• <strong>StudyGround:</strong> Express.js + React + WebRTC + Socket.io</li>
-                      </ul>
-                    </div>
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold text-gray-900">핵심 역량</h4>
-                      <ul className="space-y-2 text-sm text-gray-700">
-                        <li>• RESTful API 설계 및 구현</li>
-                        <li>• 데이터베이스 설계 및 성능 최적화</li>
-                        <li>• 실시간 통신 시스템 구축 (SSE, WebRTC)</li>
-                        <li>• CI/CD 파이프라인 구축 및 자동화 배포</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
         </main>
       </div>
   );
