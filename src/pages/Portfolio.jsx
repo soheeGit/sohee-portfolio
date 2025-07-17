@@ -4,9 +4,7 @@ import profilePhoto from '../assets/KakaoTalk_Photo_2025-07-14-05-20-43.jpeg';
 import profilePhotoSmall from '../assets/진소희증명사진.JPG';
 
 export default function Portfolio() {
-  const [activeSection, setActiveSection] = useState('about');
   const [mounted, setMounted] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -60,19 +58,41 @@ export default function Portfolio() {
     { icon: Phone, label: '010-8847-4810', href: 'tel:010-8847-4810' },
   ];
 
-  const toggleSidebar = () => {
-    setSidebarOpen(!sidebarOpen);
-  };
+  return (
+      <div className={`min-h-screen bg-white transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+        {/* 상단 네비게이션 바 */}
+        <header className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-50">
+          <div className="max-w-6xl mx-auto flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
+                <img src={profilePhotoSmall} alt="진소희" className="w-full h-full object-cover rounded-full" />
+              </div>
+              <div>
+                <h1 className="text-lg font-bold text-gray-900">진소희</h1>
+                <p className="text-sm text-gray-600">Backend Developer</p>
+              </div>
+            </div>
 
-  const handleSectionChange = (sectionId) => {
-    setActiveSection(sectionId);
-    setSidebarOpen(false); // 모바일에서 메뉴 선택 시 사이드바 닫기
-  };
+            {/* 네비게이션 메뉴 */}
+            <nav className="hidden md:flex space-x-6">
+              {navigationItems.map((item) => (
+                  <a
+                      key={item.id}
+                      href={`#${item.id}`}
+                      className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
+                  >
+                    <item.icon size={16} />
+                    <span className="font-medium">{item.label}</span>
+                  </a>
+              ))}
+            </nav>
+          </div>
+        </header>
 
-  const renderContent = () => {
-    switch (activeSection) {
-      case 'about':
-        return (
+        {/* 메인 콘텐츠 - 모든 섹션을 세로로 배치 */}
+        <main className="max-w-6xl mx-auto">
+          {/* About Section */}
+          <section id="about" className="min-h-screen p-6 lg:p-12">
             <div className="space-y-12 py-8 lg:py-16">
               {/* Hero Section with Photo */}
               <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
@@ -105,43 +125,43 @@ export default function Portfolio() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {contactInfo.map((contact, index) => (
                         <a key={index} href={contact.href}
-                          target={contact.href.startsWith('http') ? '_blank' : undefined}
-                          rel={contact.href.startsWith('http') ? 'noopener noreferrer' : undefined}
-                          className="flex items-center space-x-3 p-4 rounded-lg hover:bg-gray-50 transition-colors group justify-center lg:justify-start"
-                          >
+                           target={contact.href.startsWith('http') ? '_blank' : undefined}
+                           rel={contact.href.startsWith('http') ? 'noopener noreferrer' : undefined}
+                           className="flex items-center space-x-3 p-4 rounded-lg hover:bg-gray-50 transition-colors group justify-center lg:justify-start"
+                        >
                           <contact.icon className="text-gray-600 group-hover:text-gray-900 transition-colors" size={20} />
                           <span className="text-gray-900 font-medium">{contact.label}</span>
                         </a>
                     ))}
                   </div>
-            </div>
-      </div>
+                </div>
+              </div>
 
-        <div className="space-y-6 border-t pt-12">
-          <h2 className="text-2xl font-bold text-gray-900">개발 철학</h2>
-          <div className="grid md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800">코드 품질</h3>
-              <p className="text-gray-600 leading-relaxed">
-                단순함과 명확함, 그리고 유지보수의 용이성을 가장 중요하게 생각합니다.
-                불필요한 추상화나 복잡한 구조보다는, 읽기 쉽고 예측 가능한 코드가
-                협업과 확장성을 높인다고 믿습니다.
-              </p>
+              <div className="space-y-6 border-t pt-12">
+                <h2 className="text-2xl font-bold text-gray-900">개발 철학</h2>
+                <div className="grid md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800">코드 품질</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      단순함과 명확함, 그리고 유지보수의 용이성을 가장 중요하게 생각합니다.
+                      불필요한 추상화나 복잡한 구조보다는, 읽기 쉽고 예측 가능한 코드가
+                      협업과 확장성을 높인다고 믿습니다.
+                    </p>
+                  </div>
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-semibold text-gray-800">성장 마인드</h3>
+                    <p className="text-gray-600 leading-relaxed">
+                      '유연하게 사고하고, 단단하게 구현하는 개발자'로 성장하기 위해
+                      꾸준히 학습하고, 다양한 도전을 이어가고 있습니다.
+                    </p>
+                  </div>
+                </div>
+              </div>
             </div>
-            <div className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800">성장 마인드</h3>
-              <p className="text-gray-600 leading-relaxed">
-                '유연하게 사고하고, 단단하게 구현하는 개발자'로 성장하기 위해
-                꾸준히 학습하고, 다양한 도전을 이어가고 있습니다.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-      );
+          </section>
 
-      case 'projects':
-        return (
+          {/* Projects Section */}
+          <section id="projects" className="min-h-screen p-6 lg:p-12 border-t border-gray-200">
             <div className="space-y-8 py-8">
               <div className="space-y-3">
                 <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">Projects</h1>
@@ -182,16 +202,16 @@ export default function Portfolio() {
 
                             <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
                               {project.github.map((githubLink, idx) => (
-                                <a key={idx}
-                                href={githubLink}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
-                                >
-                                <Github size={16} />
-                              {idx === 0 ? 'Frontend' : 'Backend'}
-                                </a>
-                                ))}
+                                  <a key={idx}
+                                     href={githubLink}
+                                     target="_blank"
+                                     rel="noopener noreferrer"
+                                     className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
+                                  >
+                                    <Github size={16} />
+                                    {idx === 0 ? 'Frontend' : 'Backend'}
+                                  </a>
+                              ))}
                               {project.demo && (
                                   <a
                                       href={project.demo}
@@ -290,16 +310,16 @@ export default function Portfolio() {
 
                       {/* Divider */}
                       {index < projects.length - 1 && (
-                      <div className="mt-16 border-b border-gray-200"></div>
+                          <div className="mt-16 border-b border-gray-200"></div>
                       )}
                     </div>
-                  ))}
+                ))}
               </div>
             </div>
-        );
+          </section>
 
-      case 'troubleshooting':
-        return (
+          {/* Problem Solving Section */}
+          <section id="troubleshooting" className="min-h-screen p-6 lg:p-12 border-t border-gray-200">
             <div className="space-y-8 py-8">
               <div className="space-y-3">
                 <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">Problem Solving</h1>
@@ -474,7 +494,7 @@ export default function Portfolio() {
                     </div>
 
                     {/* 3. N+1 쿼리 최적화 */}
-                    <div className="bg-white border border-gray200 rounded-2xl p-6 lg:p-8 hover:shadow-lg transition-shadow">
+                    <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8 hover:shadow-lg transition-shadow">
                       <div className="space-y-6">
                         <div className="flex items-start gap-4">
                           <div className="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-sm">
@@ -656,10 +676,10 @@ export default function Portfolio() {
                 </div>
               </div>
             </div>
-        );
+          </section>
 
-      case 'learning':
-        return (
+          {/* Learning Section */}
+          <section id="learning" className="min-h-screen p-6 lg:p-12 border-t border-gray-200">
             <div className="space-y-8 py-8">
               <div className="space-y-3">
                 <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">Learning Journey</h1>
@@ -876,17 +896,16 @@ export default function Portfolio() {
                 </div>
               </div>
             </div>
-        );
+          </section>
 
-      case 'tech':
-        return (
+          {/* Tech Stack Section */}
+          <section id="tech" className="min-h-screen p-6 lg:p-12 border-t border-gray-200">
             <div className="space-y-8 py-8">
               <div className="space-y-3">
                 <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">Tech Stack</h1>
                 <p className="text-lg lg:text-xl text-gray-600">다양한 프로젝트를 통해 경험하고 학습한 기술들</p>
                 <div className="w-20 h-1 bg-gray-900 rounded-full"></div>
               </div>
-
               <div className="grid gap-8">
                 {/* Backend */}
                 <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8">
@@ -1129,113 +1148,8 @@ export default function Portfolio() {
                 </div>
               </div>
             </div>
-        );
-
-      default:
-        return null;
-    }
-  };
-
-  return (
-      <div className={`min-h-screen bg-white transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-        {/* Mobile Header */}
-        <header className="lg:hidden bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                <img src={profilePhotoSmall} alt="진소희" className="w-full h-full object-cover rounded-full" />
-              </div>
-              <div>
-                <h1 className="text-lg font-bold text-gray-900">진소희</h1>
-                <p className="text-sm text-gray-600">Backend Developer</p>
-              </div>
-            </div>
-            <button
-                onClick={toggleSidebar}
-                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
-          </div>
-        </header>
-
-        <div className="flex">
-          {/* Sidebar */}
-          <aside className={`
-         lg:w-96 w-full h-screen bg-gray-50 border-r border-gray-200 p-6 lg:p-8 
-         fixed top-0 left-0 overflow-y-auto z-40 transition-transform duration-300
-         ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-       `}>
-            <div className="space-y-8">
-              {/* Profile - Hidden on mobile (shown in header) */}
-              <div className="space-y-4 hidden lg:block">
-                <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center">
-                  <img src={profilePhotoSmall} alt="진소희" className="w-full h-full object-cover rounded-full" />
-                </div>
-                <div>
-                  <h1 className="text-2xl font-bold text-gray-900">진소희</h1>
-                  <p className="text-gray-600">Backend Developer</p>
-                </div>
-              </div>
-
-              {/* Navigation */}
-              <nav className="space-y-2 mt-8 lg:mt-0">
-                {navigationItems.map((item) => (
-                    <button
-                        key={item.id}
-                        onClick={() => handleSectionChange(item.id)}
-                        className={`w-full flex items-center space-x-3 p-3 rounded-lg text-left transition-colors ${
-                            activeSection === item.id
-                                ? 'bg-gray-900 text-white'
-                                : 'text-gray-700 hover:bg-gray-200'
-                        }`}
-                    >
-                      <item.icon size={20} />
-                      <span className="font-medium">{item.label}</span>
-                    </button>
-                ))}
-              </nav>
-
-              {/* Quick Contact */}
-              <div className="space-y-3 pt-8 border-t border-gray-200">
-                <p className="text-sm font-semibold text-gray-500 uppercase tracking-wide">Quick Contact</p>
-                <div className="space-y-2">
-
-                  <a href="mailto:63wlsthgml@gmail.com"
-                  className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-                  >
-                  <Mail size={16} />
-                  <span className="text-sm">Email</span>
-                </a>
-
-                <a href="https://github.com/soheeGit"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center space-x-2 text-gray-600 hover:text-gray-900 transition-colors"
-                >
-                <Github size={16} />
-                <span className="text-sm">GitHub</span>
-              </a>
-                </div>
-              </div>
-            </div>
-          </aside>
-        </div>
-
-  {/* Overlay for mobile */}
-  {sidebarOpen && (
-      <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-30 lg:hidden"
-          onClick={() => setSidebarOpen(false)}
-      />
-  )}
-
-  {/* Main Content */}
-  <main className="flex-1 lg:ml-96">
-    <div className="p-6 lg:p-12">
-      {renderContent()}
-    </div>
-  </main>
-</div>
-);
+          </section>
+        </main>
+      </div>
+  );
 }
