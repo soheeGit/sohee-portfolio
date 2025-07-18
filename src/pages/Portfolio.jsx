@@ -239,6 +239,187 @@ COPY --from=builder app/target/app.jar app.jar`
       github: ["https://github.com/Lucky-0111"],
       demo: "https://jinsohee.store/",
       period: "2025.04.28 ~ 2025.05.14"
+    },
+    {
+      title: "StudyGround",
+      subtitle: "다양한 기능을 통합한 스터디 플랫폼",
+      description: "온라인 스터디를 위한 종합 협업 플랫폼으로, Express.js + React 기반의 풀스택 웹 서비스와 WebRTC 화상회의 시스템을 통합한 실시간 협업 솔루션 서비스",
+      tech: ["Node.js", "Express.js", "Sequelize ORM", "MySQL", "Socket.io", "React 18", "Styled-Components", "Ant Design", "WebRTC", "STUN/TURN 서버", "Multer", "Passport.js"],
+      role: "백엔드 전담 개발",
+      features: [
+        "실시간 화상회의 시스템: WebRTC 기반 P2P 영상 통화 및 화면 공유",
+        "실시간 채팅방: Socket.io 기반 메시지 전송 및 룸 관리",
+        "종합 스터디 관리: 통합 일정 관리, 스터디 생성/관리, 과제 시스템, 공지사항, 자료 공유"
+      ],
+      troubleshooting: [
+        {
+          title: "Socket.io Room 데이터 누수 해결",
+          difficulty: "⭐⭐⭐⭐",
+          timeSpent: "2일",
+          problem: {
+            description: "Socket.io 연결 종료 후 Room 데이터가 메모리에서 정리되지 않는 문제",
+            situations: [
+              "사용자가 브라우저를 갑자기 닫을 때",
+              "네트워크 연결이 불안정한 상황",
+              "화상회의 중 강제 종료"
+            ],
+            impact: "Room 데이터 누적으로 메모리 사용량 지속 증가"
+          },
+          solution: {
+            steps: [
+              {
+                step: "연결 해제 이벤트 처리",
+                code: `socket.on('disconnect', () => {
+  // 사용자가 속한 모든 룸에서 제거
+  const rooms = Object.keys(socket.rooms);
+  rooms.forEach(room => {
+    socket.leave(room);
+    // 룸에 남은 사용자가 없으면 룸 데이터 삭제
+    if (io.sockets.adapter.rooms.get(room)?.size === 0) {
+      delete roomData[room];
+    }
+  });
+});`
+              },
+              {
+                step: "주기적 룸 정리 스케줄러",
+                code: `setInterval(() => {
+  Object.keys(roomData).forEach(roomId => {
+    if (!io.sockets.adapter.rooms.get(roomId)) {
+      delete roomData[roomId];
+    }
+  });
+}, 60000); // 1분마다 실행`
+              },
+              {
+                step: "안전한 룸 생성/삭제 로직",
+                detail: "룸 입장/퇴장 시 데이터 일관성 보장"
+              }
+            ]
+          },
+          results: [
+            { metric: "메모리 누수", value: "100% 해결" },
+            { metric: "룸 관리 안정성", value: "99.5% 향상" },
+            { metric: "서버 안정성", value: "24시간 무중단 운영" }
+          ]
+        },
+        {
+          title: "파일 업로드 동시성 문제 해결",
+          difficulty: "⭐⭐⭐",
+          timeSpent: "1일",
+          problem: {
+            description: "여러 사용자가 동시에 파일을 업로드할 때 파일명 충돌 및 덮어쓰기 문제",
+            situations: [
+              "같은 파일명으로 동시 업로드",
+              "파일 저장 중 다른 요청 간섭",
+              "임시 파일 정리 실패"
+            ],
+            impact: "파일 손실 및 데이터 무결성 문제"
+          },
+          solution: {
+            steps: [
+              {
+                step: "고유 파일명 생성",
+                code: `const multer = require('multer');
+const storage = multer.diskStorage({
+  destination: 'uploads/',
+  filename: (req, file, cb) => {
+    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    const ext = path.extname(file.originalname);
+    cb(null, uniqueName + ext);
+  }
+});`
+              },
+              {
+                step: "파일 업로드 mutex 구현",
+                code: `const uploadMutex = new Map();
+
+const fileUpload = async (req, res) => {
+  const userId = req.user.id;
+  
+  if (uploadMutex.has(userId)) {
+    return res.status(429).json({ error: '업로드 진행중' });
+  }
+  
+  uploadMutex.set(userId, true);
+  try {
+    // 파일 업로드 처리
+  } finally {
+    uploadMutex.delete(userId);
+  }
+};`
+              },
+              {
+                step: "임시 파일 정리 로직",
+                detail: "업로드 실패 시 임시 파일 자동 삭제"
+              }
+            ]
+          },
+          results: [
+            { metric: "파일 충돌", value: "0건" },
+            { metric: "업로드 성공률", value: "85% → 99%" },
+            { metric: "스토리지 효율성", value: "30% 개선" }
+          ]
+        },
+        {
+          title: "WebRTC 연결 안정성 최적화",
+          difficulty: "⭐⭐⭐⭐⭐",
+          timeSpent: "3일",
+          problem: {
+            description: "WebRTC P2P 연결 실패 및 화상회의 중 연결 끊김 문제",
+            situations: [
+              "NAT 환경에서 연결 실패",
+              "네트워크 변경 시 연결 끊김",
+              "다중 사용자 연결 시 성능 저하"
+            ],
+            impact: "화상회의 품질 저하 및 사용자 경험 악화"
+          },
+          solution: {
+            steps: [
+              {
+                step: "STUN/TURN 서버 설정",
+                code: `const iceServers = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  {
+    urls: 'turn:turnserver.com:3478',
+    username: 'user',
+    credential: 'pass'
+  }
+];
+
+const peerConnection = new RTCPeerConnection({
+  iceServers: iceServers
+});`
+              },
+              {
+                step: "연결 상태 모니터링 및 재연결",
+                code: `peerConnection.oniceconnectionstatechange = () => {
+  if (peerConnection.iceConnectionState === 'disconnected') {
+    // 재연결 시도
+    setTimeout(() => {
+      if (peerConnection.iceConnectionState === 'disconnected') {
+        reconnectPeer();
+      }
+    }, 5000);
+  }
+};`
+              },
+              {
+                step: "대역폭 적응형 품질 조절",
+                detail: "네트워크 상태에 따른 비디오 품질 동적 조절"
+              }
+            ]
+          },
+          results: [
+            { metric: "연결 성공률", value: "60% → 95%" },
+            { metric: "재연결 시간", value: "30초 → 5초" },
+            { metric: "화상회의 안정성", value: "80% 향상" }
+          ]
+        }
+      ],
+      github: ["https://github.com/soheeGit/StudyGround", "https://github.com/soheeGit/WebRTC-backend"],
+      period: "2024.07.01 ~ 2024.09.04",
+      award: "🏆 2024년 한국공학대학교 공학대전 디지털 전시 우수작 선정"
     }
   ];
 
@@ -728,9 +909,16 @@ COPY --from=builder app/target/app.jar app.jar`
                                 <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors">
                                   {project.title}
                                 </h2>
-                                <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium w-fit mx-auto lg:mx-0">
-                              Complete
-                            </span>
+                                <div className="flex flex-wrap gap-2 justify-center lg:justify-start">
+                                  <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium w-fit">
+                                    Complete
+                                  </span>
+                                  {project.award && (
+                                      <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium w-fit">
+                                        {project.award}
+                                      </span>
+                                  )}
+                                </div>
                               </div>
                               <p className="text-lg lg:text-xl text-gray-600 font-medium text-center lg:text-left">{project.subtitle}</p>
                               <div className="flex items-center justify-center lg:justify-start gap-4 text-sm text-gray-500">
@@ -742,17 +930,29 @@ COPY --from=builder app/target/app.jar app.jar`
                             </div>
 
                             <div className="flex flex-wrap gap-3 justify-center lg:justify-start">
-                              {project.github.map((githubLink, idx) => (
-                                  <a key={idx}
-                                     href={githubLink}
-                                     target="_blank"
-                                     rel="noopener noreferrer"
-                                     className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
+                              {Array.isArray(project.github) ? (
+                                  project.github.map((githubLink, idx) => (
+                                      <a key={idx}
+                                         href={githubLink}
+                                         target="_blank"
+                                         rel="noopener noreferrer"
+                                         className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
+                                      >
+                                        <Github size={16} />
+{project.title === 'StudyGround' ? (idx === 0 ? 'GitHub' : '화상회의') : project.github.length > 1 ? (idx === 0 ? 'Frontend' : 'Backend') : 'GitHub'}
+                                      </a>
+                                  ))
+                              ) : (
+                                  <a
+                                      href={project.github}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
                                   >
                                     <Github size={16} />
-                                    {idx === 0 ? 'Frontend' : 'Backend'}
+                                    GitHub
                                   </a>
-                              ))}
+                              )}
                               {project.demo && (
                                   <a
                                       href={project.demo}
