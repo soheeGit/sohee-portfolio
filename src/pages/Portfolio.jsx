@@ -22,6 +22,98 @@ export default function Portfolio() {
         "스마트 일정/할일/지출 관리: 그룹별 일정, 할일, 지출 지원 및 중요 알림 자동 리마인드",
         "지출 분석 엔진: Google Gemini AI 연동으로 소비 패턴 분석"
       ],
+      troubleshooting: [
+        {
+          title: "SSE 메모리 누수 해결",
+          difficulty: "⭐⭐⭐⭐⭐",
+          timeSpent: "3일",
+          problem: {
+            description: "Server-Sent Events 연결이 비정상 종료될 때 메모리에서 정리되지 않는 문제",
+            situations: [
+              "클라이언트가 브라우저를 강제 종료",
+              "네트워크 연결이 불안정한 환경",
+              "모바일에서 앱 백그라운드 전환"
+            ],
+            impact: "30분 후 메모리 사용량 200MB → 800MB 증가"
+          },
+          solution: {
+            steps: [
+              {
+                step: "문제 분석",
+                detail: "JProfiler로 메모리 덤프 분석 → SSE 연결 객체 누수 발견"
+              },
+              {
+                step: "스케줄러 구현",
+                detail: "@Scheduled(fixedRate = 300000) // 5분",
+                code: `@Scheduled(fixedRate = 300000) // 5분
+public void cleanupDeadConnections()`
+              },
+              {
+                step: "연결 상태 검증",
+                detail: "Heartbeat 메커니즘으로 비활성 연결 감지"
+              }
+            ]
+          },
+          results: [
+            { metric: "메모리 사용량 감소", value: "95%" },
+            { metric: "메모리 누수 재발생", value: "0건" },
+            { metric: "안정적 동시 사용자", value: "500+" }
+          ]
+        },
+        {
+          title: "동시성 문제 해결",
+          difficulty: "⭐⭐⭐⭐",
+          timeSpent: "2일",
+          problem: {
+            description: "다중 사용자가 동시에 같은 리소스에 접근할 때 Race Condition 발생",
+            situations: [
+              "일정 생성 시 중복 ID 발생",
+              "지출 계산 결과 불일치",
+              "간헐적 데이터 무결성 오류"
+            ]
+          },
+          solution: {
+            steps: [
+              {
+                step: "Redis 분산 락 구현",
+                code: `@RedisLock(key = "user:#{userId}")
+public void createSchedule()`
+              },
+              {
+                step: "Synchronized 블록 적용",
+                detail: "핵심 비즈니스 로직에 동기화 처리"
+              }
+            ]
+          },
+          results: [
+            { metric: "동시 요청 처리", value: "100개/초 → 500개/초" },
+            { metric: "데이터 무결성", value: "99.9% → 100%" }
+          ]
+        },
+        {
+          title: "N+1 쿼리 최적화",
+          difficulty: "⭐⭐⭐",
+          timeSpent: "1일",
+          problem: {
+            description: "사용자 목록 조회 시 각 사용자마다 추가 쿼리 실행",
+            before: "100명 조회 = 101개 쿼리 (1 + 100)",
+            responseTime: "3.2초"
+          },
+          solution: {
+            steps: [
+              {
+                step: "Fetch Join과 복합 서브쿼리 활용",
+                code: `@Query("SELECT u FROM User u
+LEFT JOIN FETCH u.schedules")`
+              }
+            ]
+          },
+          results: [
+            { metric: "쿼리 개수", value: "101개 → 2개" },
+            { metric: "응답시간", value: "3.2초 → 0.3초" }
+          ]
+        }
+      ],
       github: ["https://github.com/prgrms-aibe-devcourse/AIBE1_FinalProject_LastDance_FE", "https://github.com/prgrms-aibe-devcourse/AIBE1_FinalProject_LastDance_BE"],
       demo: "https://woori-zip.lastdance.store/",
       period: "2025.06.10 ~ 2025.07.17"
@@ -37,6 +129,113 @@ export default function Portfolio() {
         "실시간 신청 관리: 사용자/훈련사별 신청 현황 및 상태 추적 시스템",
         "완전 자동화 CI/CD: GitHub Actions → GHCR → Jenkins → 멀티 환경 자동 배포"
       ],
+      troubleshooting: [
+        {
+          title: "Docker 환경 메모리 최적화",
+          difficulty: "⭐⭐⭐⭐",
+          timeSpent: "2일",
+          problem: {
+            description: "Spring Boot 애플리케이션이 Docker 컨테이너에서 실행 시 메모리 사용량 과다",
+            situations: [
+              "컨테이너 OOM(Out of Memory) Kill 빈발",
+              "서버 응답 시간 지연",
+              "AWS EC2 t2.micro 인스턴스 한계"
+            ],
+            impact: "1GB 메모리 중 850MB 사용으로 불안정"
+          },
+          solution: {
+            steps: [
+              {
+                step: "JVM 메모리 옵션 튜닝",
+                code: `JAVA_OPTS="-Xms256m -Xmx512m -XX:MaxMetaspaceSize=128m"`
+              },
+              {
+                step: "불필요한 의존성 제거",
+                detail: "사용하지 않는 스프링 부트 스타터 및 라이브러리 정리"
+              },
+              {
+                step: "Docker 이미지 경량화",
+                code: `FROM openjdk:17-jre-slim
+COPY --from=builder app/target/app.jar app.jar`
+              }
+            ]
+          },
+          results: [
+            { metric: "메모리 사용량", value: "850MB → 400MB" },
+            { metric: "컨테이너 시작 시간", value: "45초 → 15초" },
+            { metric: "OOM Kill 발생", value: "주 3회 → 0회" }
+          ]
+        },
+        {
+          title: "CI/CD 파이프라인 안정화",
+          difficulty: "⭐⭐⭐",
+          timeSpent: "1일",
+          problem: {
+            description: "GitHub Actions → GHCR → Jenkins 배포 과정에서 간헐적 실패",
+            situations: [
+              "Docker 이미지 빌드 중 네트워크 타임아웃",
+              "Jenkins 서버 Docker 데몬 연결 실패",
+              "배포 중 이전 컨테이너 정리되지 않음"
+            ]
+          },
+          solution: {
+            steps: [
+              {
+                step: "재시도 로직 추가",
+                code: `- name: Deploy with retry
+  uses: nick-invision/retry@v2
+  with:
+    timeout_minutes: 10
+    max_attempts: 3`
+              },
+              {
+                step: "Docker 컨테이너 정리 자동화",
+                detail: "배포 전 기존 컨테이너와 이미지 정리 스크립트 실행"
+              }
+            ]
+          },
+          results: [
+            { metric: "배포 성공률", value: "70% → 99%" },
+            { metric: "배포 시간", value: "8분 → 3분" }
+          ]
+        },
+        {
+          title: "AI 챗봇 응답 시간 최적화",
+          difficulty: "⭐⭐⭐",
+          timeSpent: "1일",
+          problem: {
+            description: "LangChain4j + Google Gemini API 호출 시 응답 시간 지연",
+            situations: [
+              "첫 질문 응답 시간 15-20초",
+              "연속 질문 시에도 5-8초 소요",
+              "사용자 이탈률 증가"
+            ]
+          },
+          solution: {
+            steps: [
+              {
+                step: "프롬프트 최적화",
+                detail: "불필요한 컨텍스트 제거, 간결한 프롬프트 작성"
+              },
+              {
+                step: "응답 스트리밍 구현",
+                code: `chatModel.generate(messages)
+  .onPartialResponse(this::streamToClient)
+  .onComplete(this::finalizeResponse)`
+              },
+              {
+                step: "컨텍스트 캐싱",
+                detail: "자주 사용되는 질문 패턴에 대한 Redis 캐싱 적용"
+              }
+            ]
+          },
+          results: [
+            { metric: "첫 응답 시간", value: "15초 → 3초" },
+            { metric: "연속 질문 응답", value: "5초 → 1초" },
+            { metric: "사용자 만족도", value: "60% → 85%" }
+          ]
+        }
+      ],
       github: ["https://github.com/Lucky-0111"],
       demo: "https://jinsohee.store/",
       period: "2025.04.28 ~ 2025.05.14"
@@ -47,7 +246,6 @@ export default function Portfolio() {
     { id: 'about', label: 'About', icon: User },
     { id: 'tech', label: 'Tech Stack', icon: Server },
     { id: 'projects', label: 'Projects', icon: Code },
-    { id: 'troubleshooting', label: 'Problem Solving', icon: AlertTriangle },
     { id: 'learning', label: 'Learning', icon: GraduationCap },
   ];
 
@@ -649,6 +847,116 @@ export default function Portfolio() {
                               </div>
                             </div>
                         )}
+
+                        {/* 트러블슈팅 섹션 */}
+                        {project.troubleshooting && (
+                            <div className="space-y-6">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-red-100 rounded-xl flex items-center justify-center">
+                                  <AlertTriangle className="text-red-600" size={20} />
+                                </div>
+                                <div>
+                                  <h3 className="text-lg font-semibold text-gray-900">주요 트러블슈팅</h3>
+                                  <p className="text-sm text-gray-600">프로젝트 개발 중 해결한 핵심 기술적 문제들</p>
+                                </div>
+                              </div>
+
+                              <div className="grid gap-6">
+                                {project.troubleshooting.map((trouble, troubleIdx) => (
+                                    <div key={troubleIdx} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow">
+                                      <div className="space-y-4">
+                                        {/* 트러블슈팅 헤더 */}
+                                        <div className="flex items-start gap-3">
+                                          <div className="w-6 h-6 bg-gray-900 text-white rounded-md flex items-center justify-center flex-shrink-0 font-bold text-xs">
+                                            {troubleIdx + 1}
+                                          </div>
+                                          <div className="flex-1">
+                                            <h4 className="text-base font-bold text-gray-900 mb-1">{trouble.title}</h4>
+                                            <div className="text-xs text-gray-500">
+                                              난이도: {trouble.difficulty} | 소요시간: {trouble.timeSpent}
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        {/* 문제 & 해결과정 */}
+                                        <div className="grid lg:grid-cols-2 gap-4">
+                                          {/* 문제 상황 */}
+                                          <div className="space-y-3">
+                                            <div className="flex items-center gap-2">
+                                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                                              <h5 className="text-sm font-semibold text-red-600">문제 상황</h5>
+                                            </div>
+                                            <div className="bg-red-50 p-3 rounded-lg space-y-2">
+                                              <p className="text-sm text-gray-800 font-medium">{trouble.problem.description}</p>
+                                              {trouble.problem.situations && (
+                                                  <ul className="text-xs text-gray-600 space-y-1 ml-3">
+                                                    {trouble.problem.situations.map((situation, idx) => (
+                                                        <li key={idx}>• {situation}</li>
+                                                    ))}
+                                                  </ul>
+                                              )}
+                                              {trouble.problem.impact && (
+                                                  <div className="bg-red-100 p-2 rounded text-xs text-red-800">
+                                                    <strong>영향:</strong> {trouble.problem.impact}
+                                                  </div>
+                                              )}
+                                              {trouble.problem.before && (
+                                                  <div className="bg-red-100 p-2 rounded text-xs text-red-800">
+                                                    <strong>Before:</strong> {trouble.problem.before}
+                                                    {trouble.problem.responseTime && (
+                                                        <><br/><strong>응답시간:</strong> {trouble.problem.responseTime}</>
+                                                    )}
+                                                  </div>
+                                              )}
+                                            </div>
+                                          </div>
+
+                                          {/* 해결 과정 */}
+                                          <div className="space-y-3">
+                                            <div className="flex items-center gap-2">
+                                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                                              <h5 className="text-sm font-semibold text-green-600">해결 과정</h5>
+                                            </div>
+                                            <div className="space-y-2">
+                                              {trouble.solution.steps.map((step, stepIdx) => (
+                                                  <div key={stepIdx} className="bg-green-50 p-3 rounded-lg">
+                                                    <p className="text-sm font-medium text-gray-800 mb-1">{step.step}</p>
+                                                    {step.detail && (
+                                                        <p className="text-xs text-gray-700">{step.detail}</p>
+                                                    )}
+                                                    {step.code && (
+                                                        <div className="bg-gray-900 text-green-400 p-2 rounded text-xs font-mono mt-2 overflow-x-auto">
+                                                          {step.code.split('\n').map((line, lineIdx) => (
+                                                              <div key={lineIdx}>{line}</div>
+                                                          ))}
+                                                        </div>
+                                                    )}
+                                                  </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        </div>
+
+                                        {/* 결과 */}
+                                        {trouble.results && (
+                                            <div className="bg-gray-50 p-4 rounded-lg">
+                                              <h5 className="text-sm font-semibold text-gray-900 mb-2">📊 해결 결과</h5>
+                                              <div className={`grid gap-3 ${trouble.results.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                                                {trouble.results.map((result, resultIdx) => (
+                                                    <div key={resultIdx} className="text-center">
+                                                      <div className="text-lg font-bold text-gray-900">{result.value}</div>
+                                                      <div className="text-xs text-gray-600">{result.metric}</div>
+                                                    </div>
+                                                ))}
+                                              </div>
+                                            </div>
+                                        )}
+                                      </div>
+                                    </div>
+                                ))}
+                              </div>
+                            </div>
+                        )}
                       </div>
 
                       {/* Divider */}
@@ -657,366 +965,6 @@ export default function Portfolio() {
                       )}
                     </div>
                 ))}
-              </div>
-            </div>
-          </section>
-
-          {/* Problem Solving Section */}
-          <section id="troubleshooting" className="min-h-screen p-6 lg:p-12 border-t border-gray-200">
-            <div className="space-y-8 py-8">
-              <div className="space-y-3">
-                <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">Problem Solving</h1>
-                <p className="text-lg lg:text-xl text-gray-600">프로젝트에서 마주한 주요 문제들과 해결 과정</p>
-                <div className="w-20 h-1 bg-gray-900 rounded-full"></div>
-              </div>
-
-              <div className="space-y-16">
-                {/* 우리.zip 트러블슈팅 */}
-                <div className="space-y-8">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-red-100 rounded-xl flex items-center justify-center">
-                      <AlertTriangle className="text-red-600" size={24} />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">우리.zip 트러블슈팅</h2>
-                      <p className="text-gray-600">실시간 서비스 운영 중 발생한 핵심 기술적 문제들</p>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-8">
-                    {/* 1. SSE 메모리 누수 */}
-                    <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8 hover:shadow-lg transition-shadow">
-                      <div className="space-y-6">
-                        <div className="flex items-start gap-4">
-                          <div className="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-sm">
-                            01
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-2">SSE 메모리 누수 해결</h3>
-                            <div className="text-sm text-gray-500 mb-4">난이도: ⭐⭐⭐⭐⭐ | 소요시간: 3일</div>
-                          </div>
-                        </div>
-
-                        <div className="grid lg:grid-cols-2 gap-8">
-                          {/* 문제 상황 */}
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-red-600">문제 상황</h4>
-                            </div>
-                            <div className="bg-red-50 p-4 rounded-lg space-y-3">
-                              <p className="text-gray-800 font-medium">Server-Sent Events 연결이 비정상 종료될 때 메모리에서 정리되지 않는 문제</p>
-                              <div className="space-y-2">
-                                <p className="text-sm text-gray-700"><strong>발생 상황:</strong></p>
-                                <ul className="text-sm text-gray-600 space-y-1 ml-4">
-                                  <li>• 클라이언트가 브라우저를 강제 종료</li>
-                                  <li>• 네트워크 연결이 불안정한 환경</li>
-                                  <li>• 모바일에서 앱 백그라운드 전환</li>
-                                </ul>
-                              </div>
-                              <div className="bg-red-100 p-3 rounded border-l-4 border-red-500">
-                                <p className="text-sm text-red-800"><strong>영향:</strong> 30분 후 메모리 사용량 200MB → 800MB 증가</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* 해결 과정 */}
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-green-600">해결 과정</h4>
-                            </div>
-                            <div className="space-y-4">
-                              <div className="bg-green-50 p-4 rounded-lg">
-                                <p className="font-medium text-gray-800 mb-2">1. 문제 분석</p>
-                                <p className="text-sm text-gray-700">JProfiler로 메모리 덤프 분석 → SSE 연결 객체 누수 발견</p>
-                              </div>
-                              <div className="bg-green-50 p-4 rounded-lg">
-                                <p className="font-medium text-gray-800 mb-2">2. 스케줄러 구현</p>
-                                <div className="bg-gray-900 text-green-400 p-3 rounded text-sm font-mono overflow-x-auto">
-                                  @Scheduled(fixedRate = 300000) // 5분<br/>
-                                  public void cleanupDeadConnections()
-                                </div>
-                              </div>
-                              <div className="bg-green-50 p-4 rounded-lg">
-                                <p className="font-medium text-gray-800 mb-2">3. 연결 상태 검증</p>
-                                <p className="text-sm text-gray-700">Heartbeat 메커니즘으로 비활성 연결 감지</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* 결과 */}
-                        <div className="bg-gray-50 p-6 rounded-xl">
-                          <h4 className="font-semibold text-gray-900 mb-3">📊 해결 결과</h4>
-                          <div className="grid grid-cols-3 gap-4">
-                            <div className="text-center">
-                              <div className="text-xl lg:text-2xl font-bold text-gray-900">95%</div>
-                              <div className="text-xs lg:text-sm text-gray-600">메모리 사용량 감소</div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-xl lg:text-2xl font-bold text-gray-900">0건</div>
-                              <div className="text-xs lg:text-sm text-gray-600">메모리 누수 재발생</div>
-                            </div>
-                            <div className="text-center">
-                              <div className="text-xl lg:text-2xl font-bold text-gray-900">500+</div>
-                              <div className="text-xs lg:text-sm text-gray-600">안정적 동시 사용자</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 2. 동시성 문제 */}
-                    <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8 hover:shadow-lg transition-shadow">
-                      <div className="space-y-6">
-                        <div className="flex items-start gap-4">
-                          <div className="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-sm">
-                            02
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-2">동시성 문제 해결</h3>
-                            <div className="text-sm text-gray-500 mb-4">난이도: ⭐⭐⭐⭐ | 소요시간: 2일</div>
-                          </div>
-                        </div>
-
-                        <div className="grid lg:grid-cols-2 gap-8">
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-red-600">문제 상황</h4>
-                            </div>
-                            <div className="bg-red-50 p-4 rounded-lg space-y-3">
-                              <p className="text-gray-800 font-medium">다중 사용자가 동시에 같은 리소스에 접근할 때 Race Condition 발생</p>
-                              <div className="space-y-2">
-                                <p className="text-sm text-gray-700"><strong>주요 증상:</strong></p>
-                                <ul className="text-sm text-gray-600 space-y-1 ml-4">
-                                  <li>• 일정 생성 시 중복 ID 발생</li>
-                                  <li>• 지출 계산 결과 불일치</li>
-                                  <li>• 간헐적 데이터 무결성 오류</li>
-                                </ul>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-green-600">해결 방법</h4>
-                            </div>
-                            <div className="space-y-4">
-                              <div className="bg-green-50 p-4 rounded-lg">
-                                <p className="font-medium text-gray-800 mb-2">Redis 분산 락 구현</p>
-                                <div className="bg-gray-900 text-green-400 p-3 rounded text-sm font-mono overflow-x-auto">
-                                  @RedisLock(key = "user:#{'${userId}'}")<br/>
-                                  public void createSchedule()
-                                </div>
-                              </div>
-                              <div className="bg-green-50 p-4 rounded-lg">
-                                <p className="font-medium text-gray-800 mb-2">Synchronized 블록 적용</p>
-                                <p className="text-sm text-gray-700">핵심 비즈니스 로직에 동기화 처리</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="bg-gray-50 p-6 rounded-xl">
-                          <h4 className="font-semibold text-gray-900 mb-3">📈 성능 개선</h4>
-                          <div className="grid grid-cols-2 gap-6">
-                            <div>
-                              <p className="text-sm text-gray-600 mb-1">동시 요청 처리</p>
-                              <div className="text-lg font-bold text-gray-900">100개/초 → 500개/초</div>
-                            </div>
-                            <div>
-                              <p className="text-sm text-gray-600 mb-1">데이터 무결성</p>
-                              <div className="text-lg font-bold text-gray-900">99.9% → 100%</div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 3. N+1 쿼리 최적화 */}
-                    <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8 hover:shadow-lg transition-shadow">
-                      <div className="space-y-6">
-                        <div className="flex items-start gap-4">
-                          <div className="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-sm">
-                            03
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-2">N+1 쿼리 최적화</h3>
-                            <div className="text-sm text-gray-500 mb-4">난이도: ⭐⭐⭐ | 소요시간: 1일</div>
-                          </div>
-                        </div>
-
-                        <div className="grid lg:grid-cols-2 gap-8">
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-red-600">성능 이슈</h4>
-                            </div>
-                            <div className="bg-red-50 p-4 rounded-lg space-y-3">
-                              <p className="text-gray-800 font-medium">사용자 목록 조회 시 각 사용자마다 추가 쿼리 실행</p>
-                              <div className="bg-red-100 p-3 rounded">
-                                <p className="text-sm text-red-800"><strong>Before:</strong> 100명 조회 = 101개 쿼리 (1 + 100)</p>
-                                <p className="text-sm text-red-800"><strong>응답시간:</strong> 3.2초</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-green-600">최적화 결과</h4>
-                            </div>
-                            <div className="bg-green-50 p-4 rounded-lg space-y-3">
-                              <p className="text-gray-800 font-medium">Fetch Join과 복합 서브쿼리 활용</p>
-                              <div className="bg-green-100 p-3 rounded">
-                                <p className="text-sm text-green-800"><strong>After:</strong> 100명 조회 = 2개 쿼리</p>
-                                <p className="text-sm text-green-800"><strong>응답시간:</strong> 0.3초</p>
-                              </div>
-                              <div className="bg-gray-900 text-green-400 p-3 rounded text-xs font-mono overflow-x-auto">
-                                @Query("SELECT u FROM User u<br/>
-                                LEFT JOIN FETCH u.schedules")
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* StudyGround 트러블슈팅 */}
-                <div className="space-y-8 border-t pt-16">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
-                      <AlertTriangle className="text-blue-600" size={24} />
-                    </div>
-                    <div>
-                      <h2 className="text-2xl lg:text-3xl font-bold text-gray-900">StudyGround 트러블슈팅</h2>
-                      <p className="text-gray-600">실시간 통신 및 파일 시스템 관련 문제 해결</p>
-                    </div>
-                  </div>
-
-                  <div className="grid gap-8">
-                    {/* Socket.io 메모리 누수 */}
-                    <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8 hover:shadow-lg transition-shadow">
-                      <div className="space-y-6">
-                        <div className="flex items-start gap-4">
-                          <div className="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-sm">
-                            01
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-2">Socket.io Room 데이터 누수</h3>
-                            <div className="text-sm text-gray-500 mb-4">난이도: ⭐⭐⭐⭐ | 소요시간: 2일</div>
-                          </div>
-                        </div>
-
-                        <div className="grid lg:grid-cols-2 gap-8">
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-red-600">문제 발견</h4>
-                            </div>
-                            <div className="bg-red-50 p-4 rounded-lg space-y-3">
-                              <p className="text-gray-800 font-medium">사용자가 화상회의를 강제 종료할 때 Room 정보가 서버에 남아있는 현상</p>
-                              <ul className="text-sm text-gray-600 space-y-1 ml-4">
-                                <li>• 빈 방이 계속 메모리에 존재</li>
-                                <li>• 새로운 사용자가 빈 방에 입장하는 오류</li>
-                                <li>• 서버 재시작 전까지 문제 지속</li>
-                              </ul>
-                            </div>
-                          </div>
-
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-green-600">해결 방안</h4>
-                            </div>
-                            <div className="space-y-4">
-                              <div className="bg-green-50 p-4 rounded-lg">
-                                <p className="font-medium text-gray-800 mb-2">연결 해제 감지 로직</p>
-                                <div className="bg-gray-900 text-green-400 p-3 rounded text-sm font-mono overflow-x-auto">
-                                  socket.on('disconnect', () => {'{'}<br/>
-                                  cleanupRoom(roomId);<br/>
-                                  {'}'});
-                                </div>
-                              </div>
-                              <div className="bg-green-50 p-4 rounded-lg">
-                                <p className="font-medium text-gray-800 mb-2">주기적 정리 스케줄러</p>
-                                <p className="text-sm text-gray-700">10분마다 빈 방 자동 정리</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 파일 업로드 동시성 */}
-                    <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8 hover:shadow-lg transition-shadow">
-                      <div className="space-y-6">
-                        <div className="flex items-start gap-4">
-                          <div className="w-8 h-8 bg-gray-900 text-white rounded-lg flex items-center justify-center flex-shrink-0 font-bold text-sm">
-                            02
-                          </div>
-                          <div className="flex-1">
-                            <h3 className="text-lg lg:text-xl font-bold text-gray-900 mb-2">파일 업로드 동시성 문제</h3>
-                            <div className="text-sm text-gray-500 mb-4">난이도: ⭐⭐⭐ | 소요시간: 1일</div>
-                          </div>
-                        </div>
-
-                        <div className="grid lg:grid-cols-2 gap-8">
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-red-600">문제 현상</h4>
-                            </div>
-                            <div className="bg-red-50 p-4 rounded-lg space-y-3">
-                              <p className="text-gray-800 font-medium">여러 사용자가 동시에 같은 이름의 파일을 업로드할 때 파일 덮어쓰기 발생</p>
-                              <div className="bg-red-100 p-3 rounded">
-                                <p className="text-sm text-red-800">결과: 일부 사용자의 파일이 손실</p>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="space-y-4">
-                            <div className="flex items-center gap-2 mb-3">
-                              <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                              <h4 className="text-lg font-semibold text-green-600">해결책</h4>
-                            </div>
-                            <div className="bg-green-50 p-4 rounded-lg space-y-3">
-                              <p className="text-gray-800 font-medium">UUID 기반 고유 파일명 생성 + 업로드 큐 시스템</p>
-                              <div className="bg-gray-900 text-green-400 p-3 rounded text-sm font-mono overflow-x-auto">
-                                const uniqueName = <br/>
-                                `${'${Date.now()}_${uuidv4()}_${filename}'}`;
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 학습 포인트 */}
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 lg:p-8 rounded-2xl">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">🎯 핵심 학습 포인트</h3>
-                  <div className="grid md:grid-cols-3 gap-6">
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-gray-900">모니터링의 중요성</h4>
-                      <p className="text-sm text-gray-600">실시간 서비스에서는 사전 모니터링과 알림 시스템이 필수적임을 깨달았습니다.</p>
-                    </div>
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-gray-900">동시성 처리</h4>
-                      <p className="text-sm text-gray-600">다중 사용자 환경에서의 동시성 처리는 설계 단계부터 고려해야 할 핵심 요소입니다.</p>
-                    </div>
-                    <div className="space-y-3">
-                      <h4 className="font-semibold text-gray-900">성능 최적화</h4>
-                      <p className="text-sm text-gray-600">N+1 쿼리 같은 성능 이슈는 초기에 발견하기 어렵지만 사용자 증가 시 치명적입니다.</p>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </section>
