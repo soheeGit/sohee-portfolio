@@ -365,113 +365,6 @@ List<GroupNameProjection> findGroupNamesByGroupIds(@Param("groupIds") Set<UUID> 
         "실시간 신청 관리: 사용자/훈련사별 신청 현황 및 상태 추적 시스템",
         "완전 자동화 CI/CD: GitHub Actions → GHCR → Jenkins → 멀티 환경 자동 배포"
       ],
-      troubleshooting: [
-        {
-          title: "Docker 환경 메모리 최적화",
-          difficulty: "⭐⭐⭐⭐",
-          timeSpent: "2일",
-          problem: {
-            description: "Spring Boot 애플리케이션이 Docker 컨테이너에서 실행 시 메모리 사용량 과다",
-            situations: [
-              "컨테이너 OOM(Out of Memory) Kill 빈발",
-              "서버 응답 시간 지연",
-              "AWS EC2 t2.micro 인스턴스 한계"
-            ],
-            impact: "1GB 메모리 중 850MB 사용으로 불안정"
-          },
-          solution: {
-            steps: [
-              {
-                step: "JVM 메모리 옵션 튜닝",
-                code: `JAVA_OPTS="-Xms256m -Xmx512m -XX:MaxMetaspaceSize=128m"`
-              },
-              {
-                step: "불필요한 의존성 제거",
-                detail: "사용하지 않는 스프링 부트 스타터 및 라이브러리 정리"
-              },
-              {
-                step: "Docker 이미지 경량화",
-                code: `FROM openjdk:17-jre-slim
-COPY --from=builder app/target/app.jar app.jar`
-              }
-            ]
-          },
-          results: [
-            { metric: "메모리 사용량", value: "850MB → 400MB" },
-            { metric: "컨테이너 시작 시간", value: "45초 → 15초" },
-            { metric: "OOM Kill 발생", value: "주 3회 → 0회" }
-          ]
-        },
-        {
-          title: "CI/CD 파이프라인 안정화",
-          difficulty: "⭐⭐⭐",
-          timeSpent: "1일",
-          problem: {
-            description: "GitHub Actions → GHCR → Jenkins 배포 과정에서 간헐적 실패",
-            situations: [
-              "Docker 이미지 빌드 중 네트워크 타임아웃",
-              "Jenkins 서버 Docker 데몬 연결 실패",
-              "배포 중 이전 컨테이너 정리되지 않음"
-            ]
-          },
-          solution: {
-            steps: [
-              {
-                step: "재시도 로직 추가",
-                code: `- name: Deploy with retry
-  uses: nick-invision/retry@v2
-  with:
-    timeout_minutes: 10
-    max_attempts: 3`
-              },
-              {
-                step: "Docker 컨테이너 정리 자동화",
-                detail: "배포 전 기존 컨테이너와 이미지 정리 스크립트 실행"
-              }
-            ]
-          },
-          results: [
-            { metric: "배포 성공률", value: "70% → 99%" },
-            { metric: "배포 시간", value: "8분 → 3분" }
-          ]
-        },
-        {
-          title: "AI 챗봇 응답 시간 최적화",
-          difficulty: "⭐⭐⭐",
-          timeSpent: "1일",
-          problem: {
-            description: "LangChain4j + Google Gemini API 호출 시 응답 시간 지연",
-            situations: [
-              "첫 질문 응답 시간 15-20초",
-              "연속 질문 시에도 5-8초 소요",
-              "사용자 이탈률 증가"
-            ]
-          },
-          solution: {
-            steps: [
-              {
-                step: "프롬프트 최적화",
-                detail: "불필요한 컨텍스트 제거, 간결한 프롬프트 작성"
-              },
-              {
-                step: "응답 스트리밍 구현",
-                code: `chatModel.generate(messages)
-  .onPartialResponse(this::streamToClient)
-  .onComplete(this::finalizeResponse)`
-              },
-              {
-                step: "컨텍스트 캐싱",
-                detail: "자주 사용되는 질문 패턴에 대한 Redis 캐싱 적용"
-              }
-            ]
-          },
-          results: [
-            { metric: "첫 응답 시간", value: "15초 → 3초" },
-            { metric: "연속 질문 응답", value: "5초 → 1초" },
-            { metric: "사용자 만족도", value: "60% → 85%" }
-          ]
-        }
-      ],
       github: ["https://github.com/Lucky-0111"],
       demo: "https://jinsohee.store/",
       period: "2025.04.28 ~ 2025.05.14"
@@ -1046,10 +939,6 @@ const peerConnection = new RTCPeerConnection({
                       <h3 className="text-lg font-semibold text-gray-900">Frontend</h3>
                       <div className="space-y-2">
                         <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">React 18</div>
-                          <div className="text-sm text-gray-600">컴포넌트 기반 UI</div>
-                        </div>
-                        <div className="p-3 bg-gray-50 rounded-lg">
                           <div className="font-medium text-gray-900">JavaScript</div>
                           <div className="text-sm text-gray-600">Vanilla JS</div>
                         </div>
@@ -1063,10 +952,6 @@ const peerConnection = new RTCPeerConnection({
                     <div className="space-y-3">
                       <h3 className="text-lg font-semibold text-gray-900">AI Integration</h3>
                       <div className="space-y-2">
-                        <div className="p-3 bg-gray-50 rounded-lg">
-                          <div className="font-medium text-gray-900">LangChain4j</div>
-                          <div className="text-sm text-gray-600">AI 챗봇 구현</div>
-                        </div>
                         <div className="p-3 bg-gray-50 rounded-lg">
                           <div className="font-medium text-gray-900">Google Gemini</div>
                           <div className="text-sm text-gray-600">LLM API</div>
@@ -1098,7 +983,7 @@ const peerConnection = new RTCPeerConnection({
                       <h4 className="text-lg font-semibold text-gray-900">프로젝트 적용 경험</h4>
                       <ul className="space-y-2 text-sm text-gray-700">
                         <li>• <strong>우리.zip:</strong> Spring Boot + PostgreSQL + Redis + AWS</li>
-                        <li>• <strong>PetTalk:</strong> Spring Boot + MySQL + LangChain4j + Docker</li>
+                        <li>• <strong>PetTalk:</strong> Spring Boot + MySQL + Docker</li>
                         <li>• <strong>StudyGround:</strong> Express.js + React + WebRTC + Socket.io</li>
                       </ul>
                     </div>
@@ -1296,10 +1181,6 @@ const peerConnection = new RTCPeerConnection({
                             <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-xl">
                               <h3 className="text-lg font-semibold text-gray-900 mb-4">프로젝트 성과</h3>
                               <div className="grid grid-cols-3 gap-6">
-                                <div className="text-center">
-                                  <div className="text-2xl font-bold text-gray-900">500+</div>
-                                  <div className="text-sm text-gray-600">동시 사용자 지원</div>
-                                </div>
                                 <div className="text-center">
                                   <div className="text-2xl font-bold text-gray-900">100%</div>
                                   <div className="text-sm text-gray-600">무중단 배포</div>
