@@ -5,6 +5,13 @@ import profilePhotoSmall from '../assets/진소희증명사진.JPG';
 import alertmanagerImage from '../assets/alertmanager.png';
 import woorizipDiagramDark from '../assets/woorizip-dark.png';
 import woorizipDiagramLight from '../assets/woorizip-light.png';
+import pettalkDiagram from '../assets/pettalk-light.png';
+// Mini Projects Images
+import movieRecommend1 from '../assets/영화추천1.png';
+import movieRecommend2 from '../assets/영화추천2.png';
+import bookSearch from '../assets/책정보검색.png';
+import titanThoughts1 from '../assets/사고변환기1.png';
+import titanThoughts2 from '../assets/사고변환기2.png';
 
 export default function Portfolio() {
   const [mounted, setMounted] = useState(false);
@@ -17,6 +24,7 @@ export default function Portfolio() {
   const projects = [
     {
       title: "우리.zip",
+      teamSize: 5,
       subtitle: "하우스메이트 생활관리 플랫폼",
       description: "자취 및 공동생활을 위한 종합 생활관리 플랫폼으로, 일상 관리, 소비 분석, 공동 구매, 집안일 분담 등을 하나의 서비스로 통합하여 쾌적하고 공정한 공동 생활 환경을 조성하는 웹 기반 서비스",
       tech: ["Java 17", "Spring Boot 3.5", "Spring Security", "JPA/Hibernate", "PostgreSQL", "AWS EC2", "AWS RDS", "AWS S3", "Redis", "Docker", "GitHub Actions", "Google Gemini AI"],
@@ -356,14 +364,151 @@ List<GroupNameProjection> findGroupNamesByGroupIds(@Param("groupIds") Set<UUID> 
     },
     {
       title: "PetTalk",
+      teamSize: 5,
       subtitle: "반려생활, 같이 고민해요",
       description: "반려인 전용 종합 플랫폼으로, Spring Boot + Express.js 기반의 풀스택 웹 서비스와 LangChain4j MCP 기반 AI 챗봇 시스템을 통합한 혁신적인 반려동물 관리 서비스",
       tech: ["Java 17", "Spring Boot 3.4", "Spring Security", "JPA/Hibernate", "MySQL", "Node.js", "Express.js", "LangChain4j", "Google Gemini", "Docker"],
-      role: "프론트엔드 전반, 백엔드 리팩토링, DevOps 구축",
+      role: "프론트엔드 전반, DevOps 구축",
       features: [
         "다단계 훈련사 매칭: 자격증 인증 → 프로필 등록 → 사용자 신청 → 승인/거절 워크플로우",
         "실시간 신청 관리: 사용자/훈련사별 신청 현황 및 상태 추적 시스템",
         "완전 자동화 CI/CD: GitHub Actions → GHCR → Jenkins → 멀티 환경 자동 배포"
+      ],
+      troubleshooting: [
+        {
+          title: "토큰 관리 시스템 개선",
+          difficulty: "⭐⭐⭐⭐",
+          timeSpent: "2일",
+          problem: {
+            description: "프로젝트 초기에는 express를 정적 파일 서빙 용도로만 사용하여 토큰 관리의 복잡성",
+            situations: [
+              "백엔드로 요청을 보낼 때 로컬스토리지에 담긴 토큰을 포함해 하드코딩된 상태로 API 요청",
+              "액세스 토큰 만료 시 재발급 하는 과정이 매우 복잡하고 토큰 관리가 어려움"
+            ],
+            beforeCode: `// 기존 코드: 하드코딩된 토큰 관리
+const res = await fetch(\`http://localhost:8444/api/v1/admin/reviews\`, {
+    headers: {
+        'Content-Type': 'application/json'
+        'Authorization': \`Bearer \${accessToken}\`
+    }
+});`
+          },
+          solution: {
+            steps: [
+              {
+                step: "Express 프록시 미들웨어 구현",
+                detail: "쿠키에 토큰을 저장하고 자동으로 토큰을 관리하는 미들웨어 작성",
+                code: `async function fetchWithAuth(req, res, next) {
+    const originalUrl = req.originalUrl.replace(/^\\/api\\/v1/, "");
+    const apiUrl = \`\${BACKEND_URL}/api/v1\${originalUrl}\`;
+
+    const {accessToken, refreshToken} = req.cookies || {};
+
+    if (!accessToken && !refreshToken) {
+        clearAuthCookies(res);
+        return res.status(401).json({message: "인증 정보가 없습니다. 로그인 해주세요."});
+    }
+
+    let token = accessToken;
+
+    if (!token && refreshToken) {
+        try {
+            const tokens = await reissueAccessToken(refreshToken);
+            token = setTokenCookies(res, tokens);
+        } catch (err) {
+            console.error("토큰 재발급 실패:", err);
+            clearAuthCookies(res);
+            return res.status(401).json({message: "토큰이 만료되었습니다. 다시 로그인 해주세요."});
+        }
+    }
+
+    // 백엔드로 api 요청하는 코드
+    // ...
+}`
+              }
+            ]
+          },
+          results: [
+            { metric: "토큰 관리 복잡성", value: "대폭 간소화" },
+            { metric: "자동 토큰 재발급", value: "구현 완료" },
+            { metric: "보안성", value: "쿠키 기반으로 향상" }
+          ]
+        },
+        {
+          title: "정적 파일 서빙 문제 해결",
+          difficulty: "⭐⭐⭐",
+          timeSpent: "1일",
+          problem: {
+            description: "라우팅된 HTML 페이지가 정상적으로 표시되었지만, CSS와 JS 파일이 로드되지 않는 문제 발생",
+            situations: [
+              "Express 서버에서 해당 정적 파일들을 제공하는 설정이 빠졌기 때문"
+            ]
+          },
+          solution: {
+            steps: [
+              {
+                step: "Express 정적 파일 설정 추가",
+                detail: "라우터 파일에 정적 파일 서빙 미들웨어 추가",
+                code: `router.use('/profile', express.static(path.join(__dirname, '../public')));`
+              }
+            ]
+          },
+          results: [
+            { metric: "CSS/JS 파일 로딩", value: "정상 동작" },
+            { metric: "페이지 렌더링", value: "완전 복구" }
+          ]
+        },
+        {
+          title: "OAuth2 리다이렉트 URL 설정 오류",
+          difficulty: "⭐⭐",
+          timeSpent: "0.5일",
+          problem: {
+            description: "OAuth2 인증 성공 후 프론트엔드로 리다이렉트할 때 연결이 안되는 문제",
+            situations: [
+              "환경변수 값 끝에 `/`이 없어서 연결이 안됨"
+            ],
+            beforeCode: `// 기존 환경변수 설정
+FRONT_URL=https://pet-talk.onrender.com
+
+// 백엔드 OAuth2 성공 핸들러
+@Override
+public void onAuthenticationSuccess(HttpServletRequest req,
+                                    HttpServletResponse res,
+                                    Authentication authentication) throws IOException, ServletException {
+    String accessToken = tokenService.createAccessToken(authentication);
+    String refreshToken = tokenService.createRefreshToken(authentication);
+    long accessTokenExpiresIn = tokenService.getExpiresInSeconds(accessToken);
+    long refreshTokenExpiresIn = tokenService.getExpiresInSeconds(refreshToken);
+    tokenService.saveRefreshToken(accessToken);
+
+    String redirectUrl = UriComponentsBuilder
+            .fromUriString(frontUrl + "auth/oauth2/callback")
+            .queryParam("accessToken", accessToken)
+            .queryParam("refreshToken", refreshToken)
+            .queryParam("accessTokenExpiresIn", accessTokenExpiresIn)
+            .queryParam("refreshTokenExpiresIn", refreshTokenExpiresIn)
+            .build()
+            .toUriString();
+
+    res.sendRedirect(redirectUrl);
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+}`
+          },
+          solution: {
+            steps: [
+              {
+                step: "환경변수 URL 형식 수정",
+                detail: "환경변수 값 끝에 `/` 추가하여 올바른 URL 형식으로 수정",
+                code: `// 수정된 환경변수 설정
+FRONT_URL=https://pet-talk.onrender.com/`
+              }
+            ]
+          },
+          results: [
+            { metric: "OAuth2 리다이렉트", value: "정상 동작" },
+            { metric: "사용자 인증 플로우", value: "완전 복구" }
+          ]
+        }
       ],
       github: ["https://github.com/Lucky-0111"],
       demo: "https://jinsohee.store/",
@@ -371,6 +516,7 @@ List<GroupNameProjection> findGroupNamesByGroupIds(@Param("groupIds") Set<UUID> 
     },
     {
       title: "StudyGround",
+      teamSize: 3,
       subtitle: "다양한 기능을 통합한 스터디 플랫폼",
       description: "온라인 스터디를 위한 종합 협업 플랫폼으로, Express.js + React 기반의 풀스택 웹 서비스와 WebRTC 화상회의 시스템을 통합한 실시간 협업 솔루션 서비스",
       tech: ["Node.js", "Express.js", "Sequelize ORM", "MySQL", "Socket.io", "React 18", "Styled-Components", "Ant Design", "WebRTC", "STUN/TURN 서버", "Multer", "Passport.js"],
@@ -392,37 +538,86 @@ List<GroupNameProjection> findGroupNamesByGroupIds(@Param("groupIds") Set<UUID> 
               "네트워크 연결이 불안정한 상황",
               "화상회의 중 강제 종료"
             ],
-            impact: "Room 데이터 누적으로 메모리 사용량 지속 증가"
+            impact: "Room 데이터 누적으로 메모리 사용량 지속 증가",
+            beforeCode: `// 기존 코드: 연결 해제 시 룸 정리 로직 부족
+chat.on('connection', async (socket) => {
+    console.log('chat 네임스페이스 접속');
+    
+    socket.on('join', async (data) => {
+        socket.join(data);
+        req.session.roomId = data;
+        // 룸 데이터 저장하지만 정리 로직 없음
+        socket.to(data).emit('join', {
+            user: 'system',
+            chat: \`\${user.uName}님이 입장하셨습니다.\`
+        });
+    });
+
+    socket.on('disconnect', async () => {
+        console.log('클라이언트 접속 해제');
+        // 단순히 사용자만 퇴장 처리, 룸 정리 없음
+        socket.to(roomId).emit('exit', {
+            user: 'system',
+            chat: \`\${user.uName}님이 퇴장하셨습니다.\`
+        });
+    });
+});`
           },
           solution: {
             steps: [
               {
-                step: "연결 해제 이벤트 처리",
-                code: `socket.on('disconnect', () => {
-  // 사용자가 속한 모든 룸에서 제거
-  const rooms = Object.keys(socket.rooms);
-  rooms.forEach(room => {
-    socket.leave(room);
-    // 룸에 남은 사용자가 없으면 룸 데이터 삭제
-    if (io.sockets.adapter.rooms.get(room)?.size === 0) {
-      delete roomData[room];
+                step: "연결 해제 시 룸 정리 로직 추가",
+                detail: "사용자 퇴장 시 룸에 남은 사용자 수를 확인하여 빈 룸 자동 제거",
+                code: `socket.on('disconnect', async () => {
+    console.log('클라이언트 접속 해제', ip, socket.id);
+    const roomId = req.session.roomId;
+    console.log('roomId', roomId);
+    
+    // 현재 룸에 남은 사용자 수 확인
+    const currentRoom = chat.adapter.rooms.get(roomId);
+    const userCount = currentRoom ? currentRoom.size : 0;
+    
+    // 룸에 사용자가 없으면 룸 데이터 제거
+    if(userCount === 0) {
+        await removeRoom(roomId);
+        room.emit('removeRoom', roomId);
+        console.log('방 제거 요청 성공');
     }
-  });
+    
+    socket.to(roomId).emit('exit', {
+        user: 'system',
+        chat: \`\${user.uName}님이 퇴장하셨습니다.\`
+    });
 });`
               },
               {
-                step: "주기적 룸 정리 스케줄러",
-                code: `setInterval(() => {
-  Object.keys(roomData).forEach(roomId => {
-    if (!io.sockets.adapter.rooms.get(roomId)) {
-      delete roomData[roomId];
+                step: "데이터베이스 룸 제거 서비스 구현",
+                detail: "메모리뿐만 아니라 데이터베이스에서도 빈 룸 정보 제거",
+                code: `// services/chat.js
+const { removeRoom } = require('./services/chat');
+
+const removeRoom = async (roomId) => {
+    try {
+        // 데이터베이스에서 룸 정보 제거
+        await Room.destroy({
+            where: { id: roomId }
+        });
+        console.log(\`Room \${roomId} removed from database\`);
+    } catch (error) {
+        console.error('Error removing room:', error);
     }
-  });
-}, 60000); // 1분마다 실행`
+};`
               },
               {
-                step: "안전한 룸 생성/삭제 로직",
-                detail: "룸 입장/퇴장 시 데이터 일관성 보장"
+                step: "네임스페이스별 룸 관리 최적화",
+                detail: "chat과 room 네임스페이스 간 룸 상태 동기화",
+                code: `// 룸 제거 시 모든 네임스페이스에 알림
+if(userCount === 0) {
+    await removeRoom(roomId);
+    // room 네임스페이스에 룸 제거 알림
+    room.emit('removeRoom', roomId);
+    console.log('방 제거 요청 성공');
+}`
               }
             ]
           },
@@ -443,44 +638,130 @@ List<GroupNameProjection> findGroupNamesByGroupIds(@Param("groupIds") Set<UUID> 
               "파일 저장 중 다른 요청 간섭",
               "임시 파일 정리 실패"
             ],
-            impact: "파일 손실 및 데이터 무결성 문제"
+            impact: "파일 손실 및 데이터 무결성 문제",
+            beforeCode: `// 기존 코드: 파일명 충돌 가능성 있음
+const upload = multer({
+    storage: multer.diskStorage({
+        destination(req, file, cb){
+            cb(null, 'uploads/')
+        },
+        filename(req, file, cb) {
+            // 원본 파일명 그대로 사용 - 충돌 위험
+            const ext = path.extname(file.originalname);
+            const baseName = path.basename(file.originalname, ext);
+            cb(null, baseName + ext);
+        },
+    }),
+    limits: { fileSize: 10 * 1024 * 1024 },
+});
+
+exports.submitFiles = async (req, res, next) => {
+    // 동시성 제어 없이 바로 파일 처리
+    const fileStorage = await FileStorage.create({
+        userId: userId,
+        boardId: boardId,
+    });
+    // 파일 업로드 처리...
+};`
           },
           solution: {
             steps: [
               {
-                step: "고유 파일명 생성",
-                code: `const multer = require('multer');
-const storage = multer.diskStorage({
-  destination: 'uploads/',
-  filename: (req, file, cb) => {
-    const uniqueName = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const ext = path.extname(file.originalname);
-    cb(null, uniqueName + ext);
-  }
+                step: "고유 파일명 생성 시스템 구현",
+                detail: "타임스탬프와 원본 파일명을 조합하여 고유한 파일명 생성",
+                code: `const upload = multer({
+    storage: multer.diskStorage({
+        destination(req, file, cb){
+            cb(null, 'uploads/')
+        },
+        filename(req, file, cb) {
+            const ext = path.extname(file.originalname);
+            const baseName = Buffer.from(path.basename(file.originalname, ext), 'utf-8').toString('utf-8');
+            // 타임스탬프를 포함한 고유 파일명 생성
+            cb(null, \`\${baseName}_\${Date.now()}\${ext}\`);
+        },
+    }),
+    limits: { fileSize: 10 * 1024 * 1024 },
 });`
               },
               {
-                step: "파일 업로드 mutex 구현",
-                code: `const uploadMutex = new Map();
+                step: "사용자별 업로드 제한 로직 추가",
+                detail: "동시 업로드 방지를 위한 사용자별 mutex 구현",
+                code: `// 사용자별 업로드 상태 관리
+const uploadMutex = new Map();
 
-const fileUpload = async (req, res) => {
-  const userId = req.user.id;
-  
-  if (uploadMutex.has(userId)) {
-    return res.status(429).json({ error: '업로드 진행중' });
-  }
-  
-  uploadMutex.set(userId, true);
-  try {
-    // 파일 업로드 처리
-  } finally {
-    uploadMutex.delete(userId);
-  }
+exports.submitFiles = async (req, res, next) => {
+    const userId = req.user.id;
+    const boardId = req.params.id;
+
+    // 동시 업로드 방지
+    if (uploadMutex.has(userId)) {
+        return res.status(429).json({ 
+            error: '파일 업로드가 진행 중입니다. 잠시 후 다시 시도해주세요.' 
+        });
+    }
+
+    uploadMutex.set(userId, true);
+
+    try {
+        const user = await User.findOne({ where: { id: userId } });
+        if (!user) {
+            return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
+        }
+
+        // 파일 업로드 처리
+        const fileStorage = await FileStorage.create({
+            userId: userId,
+            boardId: boardId,
+        });
+
+        // 파일 레코드 생성
+        if (req.files && req.files.length > 0) {
+            const fileRecords = req.files.map((file) => ({
+                fileName: file.filename,
+                fileableType: 'FileStorage',
+                fileableId: fileStorage.id,
+            }));
+            await File.bulkCreate(fileRecords);
+        }
+
+        return res.status(201).json({
+            success: true,
+            message: '파일저장소 추가 성공',
+            fileStorage,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: '서버 실패' });
+    } finally {
+        // mutex 해제
+        uploadMutex.delete(userId);
+    }
 };`
               },
               {
-                step: "임시 파일 정리 로직",
-                detail: "업로드 실패 시 임시 파일 자동 삭제"
+                step: "파일 업로드 실패 시 정리 로직",
+                detail: "업로드 실패 시 임시 파일과 데이터베이스 레코드 자동 정리",
+                code: `// 파일 업로드 실패 시 정리 함수
+const cleanupFailedUpload = async (fileStorageId, uploadedFiles) => {
+    try {
+        // 데이터베이스 레코드 삭제
+        await FileStorage.destroy({ where: { id: fileStorageId } });
+        await File.destroy({ where: { fileableId: fileStorageId } });
+        
+        // 업로드된 파일들 삭제
+        uploadedFiles.forEach(file => {
+            const filePath = path.join('uploads', file.filename);
+            fs.unlink(filePath, (err) => {
+                if (err) console.error(\`파일 삭제 오류: \${err}\`);
+            });
+        });
+        
+        console.log('업로드 실패 정리 완료');
+    } catch (error) {
+        console.error('정리 중 오류:', error);
+    }
+};`
               }
             ]
           },
@@ -490,61 +771,6 @@ const fileUpload = async (req, res) => {
             { metric: "스토리지 효율성", value: "30% 개선" }
           ]
         },
-        {
-          title: "WebRTC 연결 안정성 최적화",
-          difficulty: "⭐⭐⭐⭐⭐",
-          timeSpent: "3일",
-          problem: {
-            description: "WebRTC P2P 연결 실패 및 화상회의 중 연결 끊김 문제",
-            situations: [
-              "NAT 환경에서 연결 실패",
-              "네트워크 변경 시 연결 끊김",
-              "다중 사용자 연결 시 성능 저하"
-            ],
-            impact: "화상회의 품질 저하 및 사용자 경험 악화"
-          },
-          solution: {
-            steps: [
-              {
-                step: "STUN/TURN 서버 설정",
-                code: `const iceServers = [
-  { urls: 'stun:stun.l.google.com:19302' },
-  {
-    urls: 'turn:turnserver.com:3478',
-    username: 'user',
-    credential: 'pass'
-  }
-];
-
-const peerConnection = new RTCPeerConnection({
-  iceServers: iceServers
-});`
-              },
-              {
-                step: "연결 상태 모니터링 및 재연결",
-                code: `peerConnection.oniceconnectionstatechange = () => {
-  if (peerConnection.iceConnectionState === 'disconnected') {
-    // 재연결 시도
-    setTimeout(() => {
-      if (peerConnection.iceConnectionState === 'disconnected') {
-        reconnectPeer();
-      }
-    }, 5000);
-  }
-};`
-              },
-              {
-                step: "대역폭 적응형 품질 조절",
-                detail: "네트워크 상태에 따른 비디오 품질 동적 조절"
-              }
-            ]
-          },
-          results: [
-            { metric: "연결 성공률", value: "60% → 95%" },
-            { metric: "재연결 시간", value: "30초 → 5초" },
-            { metric: "화상회의 안정성", value: "80% 향상" }
-          ]
-        }
       ],
       github: ["https://github.com/soheeGit/StudyGround", "https://github.com/soheeGit/WebRTC-backend"],
       period: "2024.07.01 ~ 2024.09.04",
@@ -1002,6 +1228,8 @@ const peerConnection = new RTCPeerConnection({
             </div>
           </section>
 
+
+
           {/* Projects Section */}
           <section id="projects" className="min-h-screen p-6 lg:p-12 border-t border-gray-200">
             <div className="space-y-8 py-8">
@@ -1045,6 +1273,10 @@ const peerConnection = new RTCPeerConnection({
                             <span className="flex items-center gap-1">
                               <Calendar size={16} />
                               {project.period}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <User size={16} />
+                              팀 {project.teamSize}명
                             </span>
                               </div>
                             </div>
@@ -1171,6 +1403,27 @@ const peerConnection = new RTCPeerConnection({
                                 />
                                 <p className="text-xs text-gray-500 text-center mt-2">
                                   Spring Boot + PostgreSQL + Redis + AWS 기반 마이크로서비스 아키텍처
+                                </p>
+                              </div>
+                            </div>
+                        )}
+
+                        {project.title === "PetTalk" && (
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+                                  <span className="text-blue-600 text-xl">🏗️</span>
+                                  시스템 아키텍처
+                                </h3>
+                              </div>
+                              <div className="bg-gray-50 p-4 rounded-xl">
+                                <img
+                                    src={pettalkDiagram}
+                                    alt="PetTalk 시스템 아키텍처 다이어그램"
+                                    className="w-full rounded-lg border border-gray-200 shadow-sm"
+                                />
+                                <p className="text-xs text-gray-500 text-center mt-2">
+                                  Spring Boot + Express.js + LangChain4j 기반 AI 챗봇 시스템 아키텍처
                                 </p>
                               </div>
                             </div>
@@ -1331,6 +1584,392 @@ const peerConnection = new RTCPeerConnection({
                       )}
                     </div>
                 ))}
+              </div>
+            </div>
+          </section>
+
+
+
+          {/* Mini Projects Section */}
+          <section id="mini-projects" className="min-h-screen p-6 lg:p-12 border-t border-gray-200">
+            <div className="space-y-8 py-8">
+              <div className="space-y-3">
+                <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">Mini Projects</h1>
+                <p className="text-lg lg:text-xl text-gray-600">빠른 개발과 학습을 위한 개인 미니 프로젝트</p>
+                <div className="w-20 h-1 bg-gray-900 rounded-full"></div>
+              </div>
+
+              <div className="grid gap-8">
+                {/* 오늘의 영화 추천 서비스 */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8 hover:shadow-md transition-shadow">
+                  <div className="space-y-6">
+                    {/* Header */}
+                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                      <div className="space-y-3">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+                          <h2 className="text-2xl font-bold text-gray-900">오늘의 영화 추천 서비스</h2>
+                          <div className="flex flex-wrap gap-2">
+                            <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                              1일 개발
+                            </span>
+                            <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                              AI 연동
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-lg text-gray-600">영화진흥위원회 API를 기반으로 한국 박스오피스 순위와 AI 영화 추천 서비스를 제공</p>
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Calendar size={16} />
+                            2025.04.21 ~ 2025.04.21
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <User size={16} />
+                            개인 프로젝트
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-3">
+                        <a
+                            href="https://github.com/soheeGit/Today-Movie"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
+                        >
+                          <Github size={16} />
+                          GitHub
+                        </a>
+                        <a
+                            href="https://today-movie-main.onrender.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors text-sm font-medium"
+                        >
+                          <ExternalLink size={16} />
+                          Live Demo
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="space-y-6">
+                      {/* Images */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900">프로젝트 미리보기</h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <img 
+                              src={movieRecommend1} 
+                              alt="영화 추천 서비스 메인 화면" 
+                              className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                            />
+                            <p className="text-xs text-gray-500 text-center">메인 화면 및 박스오피스</p>
+                          </div>
+                          <div className="space-y-2">
+                            <img 
+                              src={movieRecommend2} 
+                              alt="AI 영화 추천 화면" 
+                              className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                            />
+                            <p className="text-xs text-gray-500 text-center">AI 기반 영화 추천</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid lg:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-900">핵심 기능</h3>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-3">
+                              <div className="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-bold">1</span>
+                              </div>
+                              <span className="text-gray-700">일일 박스오피스 순위 제공</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <div className="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-bold">2</span>
+                              </div>
+                              <span className="text-gray-700">Google Gemini AI 기반 개인화 영화 추천</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <div className="w-6 h-6 bg-blue-100 text-blue-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-bold">3</span>
+                              </div>
+                              <span className="text-gray-700">영화진흥위원회 API 연동</span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-900">기술 스택</h3>
+                          <div className="grid grid-cols-2 gap-2">
+                            {['Java 17', 'Spring Framework', 'Bootstrap 5', 'JSP', 'Google Gemini', '영화진흥위원회 API'].map((tech, idx) => (
+                                <div key={idx} className="px-3 py-2 bg-gray-50 rounded-lg text-center">
+                                  <span className="text-gray-800 font-medium text-sm">{tech}</span>
+                                </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 네이버 API 기반 책 검색 서비스 */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8 hover:shadow-md transition-shadow">
+                  <div className="space-y-6">
+                    {/* Header */}
+                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                      <div className="space-y-3">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+                          <h2 className="text-2xl font-bold text-gray-900">네이버 API 기반 책 검색 서비스</h2>
+                          <div className="flex flex-wrap gap-2">
+                            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                              1일 개발
+                            </span>
+                            <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
+                              API 연동
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-lg text-gray-600">네이버 API를 기반으로 책을 검색하고 상세 정보를 확인할 수 있는 검색 서비스</p>
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Calendar size={16} />
+                            2025.05.10 ~ 2025.05.10
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <User size={16} />
+                            개인 프로젝트
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-3">
+                        <a
+                            href="https://github.com/soheeGit/naver_book_search"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
+                        >
+                          <Github size={16} />
+                          GitHub
+                        </a>
+                        <a
+                            href="https://naver-book-search.onrender.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors text-sm font-medium"
+                        >
+                          <ExternalLink size={16} />
+                          Live Demo
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="space-y-6">
+                      {/* Images */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900">프로젝트 미리보기</h3>
+                        <div className="max-w-2xl mx-auto">
+                          <div className="space-y-2">
+                            <img 
+                              src={bookSearch} 
+                              alt="네이버 API 기반 책 검색 서비스" 
+                              className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                            />
+                            <p className="text-xs text-gray-500 text-center">책 검색 및 상세 정보 화면</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid lg:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-900">핵심 기능</h3>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-3">
+                              <div className="w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-bold">1</span>
+                              </div>
+                              <span className="text-gray-700">도서 검색 기능</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <div className="w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-bold">2</span>
+                              </div>
+                              <span className="text-gray-700">책의 저자, 출판사 등 상세 정보 제공</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <div className="w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-bold">3</span>
+                              </div>
+                              <span className="text-gray-700">네이버 API 실시간 연동</span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-900">기술 스택</h3>
+                          <div className="grid grid-cols-2 gap-2">
+                            {['Java (Servlet)', 'HTML', 'CSS', 'JavaScript', 'Naver API'].map((tech, idx) => (
+                                <div key={idx} className="px-3 py-2 bg-gray-50 rounded-lg text-center">
+                                  <span className="text-gray-800 font-medium text-sm">{tech}</span>
+                                </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* 진격의 거인 사고변환기 */}
+                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8 hover:shadow-md transition-shadow">
+                  <div className="space-y-6">
+                    {/* Header */}
+                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                      <div className="space-y-3">
+                        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
+                          <h2 className="text-2xl font-bold text-gray-900">진격의 거인 사고변환기</h2>
+                          <div className="flex flex-wrap gap-2">
+                            <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                              1일 개발
+                            </span>
+                            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
+                              LLM 활용
+                            </span>
+                          </div>
+                        </div>
+                        <p className="text-lg text-gray-600">진격의 거인 캐릭터들의 사고방식으로 생각을 재해석해주는 LLM 기반 변환기</p>
+                        <div className="flex items-center gap-4 text-sm text-gray-500">
+                          <span className="flex items-center gap-1">
+                            <Calendar size={16} />
+                            2025.06.13 ~ 2025.06.13
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <User size={16} />
+                            개인 프로젝트
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-wrap gap-3">
+                        <a
+                            href="https://github.com/soheeGit/titan-thoughts"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
+                        >
+                          <Github size={16} />
+                          GitHub
+                        </a>
+                        <a
+                            href="https://titan-thoughts.onrender.com"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors text-sm font-medium"
+                        >
+                          <ExternalLink size={16} />
+                          Live Demo
+                        </a>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="space-y-6">
+                      {/* Images */}
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-900">프로젝트 미리보기</h3>
+                        <div className="grid md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <img 
+                              src={titanThoughts1} 
+                              alt="진격의 거인 사고변환기 메인 화면" 
+                              className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                            />
+                            <p className="text-xs text-gray-500 text-center">메인 화면 및 캐릭터 선택</p>
+                          </div>
+                          <div className="space-y-2">
+                            <img 
+                              src={titanThoughts2} 
+                              alt="사고변환 결과 화면" 
+                              className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                            />
+                            <p className="text-xs text-gray-500 text-center">사고변환 결과 및 히스토리</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid lg:grid-cols-2 gap-6">
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-900">핵심 기능</h3>
+                          <ul className="space-y-2">
+                            <li className="flex items-start gap-3">
+                              <div className="w-6 h-6 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-bold">1</span>
+                              </div>
+                              <span className="text-gray-700">캐릭터별 사고방식 모방 (에렌, 미카사, 아르민, 리바이 등)</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <div className="w-6 h-6 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-bold">2</span>
+                              </div>
+                              <span className="text-gray-700">Google Gemini API 연동</span>
+                            </li>
+                            <li className="flex items-start gap-3">
+                              <div className="w-6 h-6 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                <span className="text-xs font-bold">3</span>
+                              </div>
+                              <span className="text-gray-700">히스토리 기능 구현</span>
+                            </li>
+                          </ul>
+                        </div>
+
+                        <div className="space-y-4">
+                          <h3 className="text-lg font-semibold text-gray-900">기술 스택</h3>
+                          <div className="grid grid-cols-2 gap-2">
+                            {['Java 17', 'Spring Boot 3', 'Spring Data JPA', 'MySQL/PostgreSQL', 'Google Gemini API'].map((tech, idx) => (
+                                <div key={idx} className="px-3 py-2 bg-gray-50 rounded-lg text-center">
+                                  <span className="text-gray-800 font-medium text-sm">{tech}</span>
+                                </div>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mini Projects Summary */}
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 lg:p-8 rounded-2xl">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-6">🚀 미니 프로젝트 특징</h3>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="space-y-3">
+                      <div className="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                        <span className="text-blue-600 text-xl">⚡</span>
+                      </div>
+                      <h4 className="font-semibold text-gray-900">빠른 개발</h4>
+                      <p className="text-sm text-gray-600">각 프로젝트를 1일 만에 완성하여 빠른 아이디어 구현과 학습 효과 극대화</p>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                        <span className="text-green-600 text-xl">🔗</span>
+                      </div>
+                      <h4 className="font-semibold text-gray-900">API 연동</h4>
+                      <p className="text-sm text-gray-600">다양한 외부 API (영화진흥위원회, 네이버, Google Gemini) 연동 경험</p>
+                    </div>
+                    <div className="space-y-3">
+                      <div className="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                        <span className="text-purple-600 text-xl">🤖</span>
+                      </div>
+                      <h4 className="font-semibold text-gray-900">AI 활용</h4>
+                      <p className="text-sm text-gray-600">Google Gemini AI를 활용한 개인화 추천 및 텍스트 변환 서비스 구현</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
@@ -1554,6 +2193,8 @@ const peerConnection = new RTCPeerConnection({
               </div>
             </div>
           </section>
+
+
 
 
         </main>
