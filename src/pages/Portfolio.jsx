@@ -146,12 +146,12 @@ export default function Portfolio() {
                       <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
                         <span className="text-blue-600 text-lg">🎯</span>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-800">문제 본질 파악</h3>
+                      <h3 className="text-lg font-semibold text-gray-800">문제의 본질 파악</h3>
                     </div>
                     <p className="text-gray-600 leading-relaxed">
                       기능을 무작정 추가하기보다는 사용자가 진짜 겪고 있는 문제가 무엇인지 파악하는 것부터 시작합니다.
                       우리.zip에서 공동생활의 핵심 문제인 '소통 부재'를 해결하기 위해 실시간 알림 시스템에 집중한 것처럼,
-                      본질적인 해결책을 찾는 데 시간을 투자합니다.
+                      표면적인 요구사항이 아닌 본질적인 문제를 찾아 해결하는 데 시간을 투자합니다.
                     </p>
                   </div>
 
@@ -165,7 +165,7 @@ export default function Portfolio() {
                     <p className="text-gray-600 leading-relaxed">
                       복잡한 구조보다는 읽기 쉽고 유지보수하기 쉬운 코드를 추구합니다.
                       SSE 메모리 누수 문제를 해결할 때도 복잡한 라이브러리 대신
-                      단순한 스케줄러와 상태 검증으로 해결했듯이, 간단하면서도 효과적인 솔루션을 선호합니다.
+                      단순한 스케줄러와 하트비트 검증으로 해결했듯이, 간단하면서도 효과적인 솔루션을 선호합니다.
                     </p>
                   </div>
 
@@ -174,31 +174,76 @@ export default function Portfolio() {
                       <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
                         <span className="text-purple-600 text-lg">📚</span>
                       </div>
-                      <h3 className="text-lg font-semibold text-gray-800">지속적 학습</h3>
+                      <h3 className="text-lg font-semibold text-gray-800">체계적 학습</h3>
                     </div>
                     <p className="text-gray-600 leading-relaxed">
-                      새로운 기술을 배우는 것도 중요하지만, 기존 기술을 깊이 이해하고
+                      새로운 기술을 배우는 것도 중요하지만, 배운 것을 체계적으로 정리하고
                       실무에서 안정적으로 사용할 수 있게 만드는 것을 더 중요하게 생각합니다.
-                      TIL 작성을 통해 매일 배운 것들을 정리하고 체화하려 노력합니다.
+                      매일 TIL 작성으로 데브코스 1위를 기록한 것처럼, 꾸준한 기록과 정리를 통해 지식을 내재화합니다.
                     </p>
                   </div>
                 </div>
 
-                <div className="bg-gray-50 p-6 rounded-xl">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-4">💭 개발에 대한 생각</h3>
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-3">
-                      <span className="text-gray-400 mt-1">"</span>
-                      <div className="space-y-2">
-                        <p className="text-gray-700 leading-relaxed font-medium">
-                          완벽한 코드는 없지만, 더 나은 코드는 항상 존재한다
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          동시성 문제를 겪으면서 깨달은 것은 모든 상황을 예측할 수는 없지만,
-                          발생할 수 있는 문제들을 미리 고려하고 대비책을 마련하는 것의 중요성입니다.
-                          코드 리뷰와 테스트 코드 작성을 통해 더 안정적인 서비스를 만들어가고 있습니다.
-                        </p>
+                <div className="space-y-6">
+                  <div className="bg-gray-50 p-6 rounded-xl">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-4">💭 개발에 대한 생각</h3>
+                    <div className="space-y-4">
+                      <div className="flex items-start gap-3">
+                        <span className="text-gray-400 mt-1 text-2xl">"</span>
+                        <div className="space-y-3">
+                          <p className="text-gray-700 leading-relaxed font-medium text-lg">
+                            완벽한 코드는 없지만, 더 나은 코드는 항상 존재한다
+                          </p>
+                          <p className="text-gray-600 leading-relaxed">
+                            동시성 문제와 메모리 누수를 겪으면서 깨달은 것은 모든 상황을 예측할 수는 없지만,
+                            발생할 수 있는 문제들을 미리 고려하고 대비책을 마련하는 것의 중요성입니다.
+                            클린코드 스터디를 통해 배운 원칙들을 실제 프로젝트에 적용하며,
+                            코드 리뷰와 테스트 코드 작성을 통해 더 안정적인 서비스를 만들어가고 있습니다.
+                          </p>
+                        </div>
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="bg-white border border-gray-200 p-6 rounded-xl">
+                      <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                        <span className="text-yellow-500">⚡</span>
+                        실무에서의 접근법
+                      </h4>
+                      <ul className="space-y-2 text-sm text-gray-600">
+                        <li>• <strong>우리.zip:</strong> 500명 동시 사용자 환경에서 안정성 확보</li>
+                        <li>• <strong>PetTalk:</strong> 완전 자동화 CI/CD로 개발 효율성 극대화</li>
+                        <li>• <strong>StudyGround:</strong> WebRTC + Socket.io로 실시간 협업 환경 구축</li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-white border border-gray-200 p-6 rounded-xl">
+                      <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                        <span className="text-green-500">🌱</span>
+                        성장하는 개발자
+                      </h4>
+                      <ul className="space-y-2 text-sm text-gray-600">
+                        <li>• <strong>기록 습관:</strong> TIL 작성량 1위로 체계적 학습 관리</li>
+                        <li>• <strong>협업 문화:</strong> 클린코드 스터디를 통한 토론 기반 성장</li>
+                        <li>• <strong>도전 정신:</strong> Seeds 커뮤니티에서 지속적인 프로젝트 참여</li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
+                      <span className="text-blue-600 text-xl">💡</span>
+                    </div>
+                    <div className="space-y-2">
+                      <h4 className="font-semibold text-gray-900">앞으로의 목표</h4>
+                      <p className="text-gray-700 leading-relaxed">
+                        <strong>'유연하게 사고하고, 단단하게 구현하는 개발자'</strong>가 되는 것이 저의 목표입니다.
+                        새로운 기술에 열린 마음을 유지하면서도, 검증된 방법으로 안정적인 서비스를 구축하는
+                        균형감을 갖춘 개발자로 성장해나가고 있습니다.
+                      </p>
                     </div>
                   </div>
                 </div>
