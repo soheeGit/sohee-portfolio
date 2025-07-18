@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Github, Mail, ExternalLink, Calendar, Code, Server, AlertTriangle, GraduationCap, Phone, Globe, MapPin, User, Menu, X } from 'lucide-react';
 import profilePhoto from '../assets/KakaoTalk_Photo_2025-07-14-05-20-43.jpeg';
-import profilePhotoSmall from '../assets/진소희증명사진.JPG';
+import profilePhotoSmall from '../assets/진소희증명사진.jpeg';
 import alertmanagerImage from '../assets/alertmanager.png';
 import woorizipDiagramDark from '../assets/woorizip-dark.png';
 import woorizipDiagramLight from '../assets/woorizip-light.png';
@@ -798,8 +798,22 @@ const cleanupFailedUpload = async (fileStorageId, uploadedFiles) => {
         <header className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-50">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                <img src={profilePhotoSmall} alt="진소희" className="w-full h-full object-cover rounded-full" />
+              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
+                {profilePhotoSmall ? (
+                  <img 
+                    src={profilePhotoSmall} 
+                    alt="진소희" 
+                    className="w-full h-full object-cover rounded-full" 
+                    onError={(e) => {
+                      console.error('Profile photo failed to load:', e);
+                      console.error('Image source:', profilePhotoSmall);
+                      e.target.style.display = 'none';
+                    }}
+                    onLoad={() => console.log('Profile photo loaded successfully')}
+                  />
+                ) : (
+                  <User size={20} className="text-gray-600" />
+                )}
               </div>
               <div>
                 <h1 className="text-lg font-bold text-gray-900">진소희</h1>
