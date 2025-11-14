@@ -5,13 +5,10 @@ import profilePhotoSmall from '../assets/진소희증명
 import alertmanagerImage from '../assets/alertmanager.png';
 import woorizipDiagramDark from '../assets/woorizip-dark.png';
 import woorizipDiagramLight from '../assets/woorizip-light.png';
-import pettalkDiagram from '../assets/pettalk-light.png';
+import krocsDiagram from '../assets/krocs아키텍처다이어그램.png';
 // Mini Projects Images
 import movieRecommend1 from '../assets/영화추천1.png';
 import movieRecommend2 from '../assets/영화추천2.png';
-import bookSearch from '../assets/책정보검색.png';
-import titanThoughts1 from '../assets/사고변환기1.png';
-import titanThoughts2 from '../assets/사고변환기2.png';
 
 export default function Portfolio() {
   const [mounted, setMounted] = useState(false);
@@ -363,418 +360,93 @@ List<GroupNameProjection> findGroupNamesByGroupIds(@Param("groupIds") Set<UUID> 
       period: "2025.06.10 ~ 2025.07.17"
     },
     {
-      title: "PetTalk",
-      teamSize: 5,
-      subtitle: "반려생활, 같이 고민해요",
-      description: "반려인 전용 종합 플랫폼으로, Spring Boot + Express.js 기반의 풀스택 웹 서비스와 LangChain4j MCP 기반 AI 챗봇 시스템을 통합한 혁신적인 반려동물 관리 서비스",
-      tech: ["Java 17", "Spring Boot 3.4", "Spring Security", "JPA/Hibernate", "MySQL", "Node.js", "Express.js", "LangChain4j", "Google Gemini", "Docker"],
-      role: "프론트엔드 전반, DevOps 구축",
+      title: "Krocs",
+      teamSize: 4,
+      subtitle: "계획의 루프를 완성하는 시간 코치",
+      description: "목표 설정부터 일정 관리, 시간 측정, 회고까지 계획의 전체 사이클을 지원하는 시간 관리 서비스",
+      tech: ["Java 21", "Spring Boot 3.5.3", "Spring Security", "JPA/Hibernate", "PostgreSQL", "AWS EC2", "AWS RDS", "Redis", "GitHub Actions", "Docker"],
+      role: ["백엔드: Goal/Plan/Stopwatch 시스템 전체 구현, 데이터베이스 설계", "인프라: Docker, CI/CD, AWS 아키텍처 구축"],
       features: [
-        "다단계 훈련사 매칭: 자격증 인증 → 프로필 등록 → 사용자 신청 → 승인/거절 워크플로우",
-        "실시간 신청 관리: 사용자/훈련사별 신청 현황 및 상태 추적 시스템",
-        "완전 자동화 CI/CD: GitHub Actions → GHCR → Jenkins → 멀티 환경 자동 배포"
+        "목표(Goal) 관리 시스템: CRUD API 설계, 계층 구조, 진행률 계산, 검색/필터링, 데이터 정합성 보장",
+        "일정(Plan) 관리 시스템: 캘린더 기반 일정 CRUD, 목표-일정 연동",
+        "타이머(Stopwatch) 시스템: Redis 기반 실시간 세션 관리",
+        "회고 시스템: 성공/실패 요인 분석 및 성장 과정 추적",
+        "인프라: GitHub Actions CI/CD 자동 배포"
       ],
       troubleshooting: [
         {
-          title: "토큰 관리 시스템 개선",
+          title: "HTTPS 배포 시 환경변수 전달 및 SSL 설정 순서 문제",
           difficulty: "⭐⭐⭐⭐",
           timeSpent: "2일",
           problem: {
-            description: "프로젝트 초기에는 express를 정적 파일 서빙 용도로만 사용하여 토큰 관리의 복잡성",
+            description: "GitHub Actions를 통한 EC2 자동 배포 시 환경변수 미전달과 SSL 설정 오류로 nginx 컨테이너가 반복적으로 재시작되며 서비스 접속 불가",
             situations: [
-              "백엔드로 요청을 보낼 때 로컬스토리지에 담긴 토큰을 포함해 하드코딩된 상태로 API 요청",
-              "액세스 토큰 만료 시 재발급 하는 과정이 매우 복잡하고 토큰 관리가 어려움"
+              "GitHub Actions에서 설정한 환경변수(DB_URL, ECR_REGISTRY 등)가 EC2 SSH 접속 시 빈 문자열이 되어 Docker 이미지 참조 실패",
+              "SSL 인증서가 없는 상태에서 nginx가 HTTPS 설정을 로드하려 해서 컨테이너가 계속 재시작됨",
+              "초기 SSL 스크립트가 docker-compose.yml(개발용) 참조하여 /home/ubuntu/backend 경로 찾지 못해 빌드 실패",
+              "Docker 캐시 손상으로 ContainerConfig 오류 발생 및 컨테이너 생성 실패"
             ],
-            beforeCode: `// 기존 코드: 하드코딩된 토큰 관리
-const res = await fetch(\`http://localhost:8444/api/v1/admin/reviews\`, {
-    headers: {
-        'Content-Type': 'application/json'
-        'Authorization': \`Bearer \${accessToken}\`
-    }
-});`
-          },
-          solution: {
-            steps: [
-              {
-                step: "Express 프록시 미들웨어 구현",
-                detail: "쿠키에 토큰을 저장하고 자동으로 토큰을 관리하는 미들웨어 작성",
-                code: `async function fetchWithAuth(req, res, next) {
-    const originalUrl = req.originalUrl.replace(/^\\/api\\/v1/, "");
-    const apiUrl = \`\${BACKEND_URL}/api/v1\${originalUrl}\`;
+            beforeCode: `# 문제 상황 1: GitHub Actions SSH 배포 스크립트
+- name: Deploy to EC2
+  uses: appleboy/ssh-action@v1.0.3
+  with:
+      script: |
+            # 환경변수가 전달되지 않음
+            docker pull $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:latest
+            # → $DOCKER_HUB_USERNAME이 빈 문자열
+                          
+# 문제 상황 2: SSL 스크립트가 잘못된 docker-compose 참조
+# deploy/scripts/setup-ssl.sh
+docker-compose up -d  # docker-compose.yml 참조 (X)
+# → /home/ubuntu/backend 경로를 찾으려 시도
 
-    const {accessToken, refreshToken} = req.cookies || {};
-
-    if (!accessToken && !refreshToken) {
-        clearAuthCookies(res);
-        return res.status(401).json({message: "인증 정보가 없습니다. 로그인 해주세요."});
-    }
-
-    let token = accessToken;
-
-    if (!token && refreshToken) {
-        try {
-            const tokens = await reissueAccessToken(refreshToken);
-            token = setTokenCookies(res, tokens);
-        } catch (err) {
-            console.error("토큰 재발급 실패:", err);
-            clearAuthCookies(res);
-            return res.status(401).json({message: "토큰이 만료되었습니다. 다시 로그인 해주세요."});
-        }
-    }
-
-    // 백엔드로 api 요청하는 코드
-    // ...
-}`
-              }
-            ]
-          },
-          results: [
-            { metric: "토큰 관리 복잡성", value: "대폭 간소화" },
-            { metric: "자동 토큰 재발급", value: "구현 완료" },
-            { metric: "보안성", value: "쿠키 기반으로 향상" }
-          ]
-        },
-        {
-          title: "정적 파일 서빙 문제 해결",
-          difficulty: "⭐⭐⭐",
-          timeSpent: "1일",
-          problem: {
-            description: "라우팅된 HTML 페이지가 정상적으로 표시되었지만, CSS와 JS 파일이 로드되지 않는 문제 발생",
-            situations: [
-              "Express 서버에서 해당 정적 파일들을 제공하는 설정이 빠졌기 때문"
-            ]
-          },
-          solution: {
-            steps: [
-              {
-                step: "Express 정적 파일 설정 추가",
-                detail: "라우터 파일에 정적 파일 서빙 미들웨어 추가",
-                code: `router.use('/profile', express.static(path.join(__dirname, '../public')));`
-              }
-            ]
-          },
-          results: [
-            { metric: "CSS/JS 파일 로딩", value: "정상 동작" },
-            { metric: "페이지 렌더링", value: "완전 복구" }
-          ]
-        },
-        {
-          title: "OAuth2 리다이렉트 URL 설정 오류",
-          difficulty: "⭐⭐",
-          timeSpent: "0.5일",
-          problem: {
-            description: "OAuth2 인증 성공 후 프론트엔드로 리다이렉트할 때 연결이 안되는 문제",
-            situations: [
-              "환경변수 값 끝에 `/`이 없어서 연결이 안됨"
-            ],
-            beforeCode: `// 기존 환경변수 설정
-FRONT_URL=https://pet-talk.onrender.com
-
-// 백엔드 OAuth2 성공 핸들러
-@Override
-public void onAuthenticationSuccess(HttpServletRequest req,
-                                    HttpServletResponse res,
-                                    Authentication authentication) throws IOException, ServletException {
-    String accessToken = tokenService.createAccessToken(authentication);
-    String refreshToken = tokenService.createRefreshToken(authentication);
-    long accessTokenExpiresIn = tokenService.getExpiresInSeconds(accessToken);
-    long refreshTokenExpiresIn = tokenService.getExpiresInSeconds(refreshToken);
-    tokenService.saveRefreshToken(accessToken);
-
-    String redirectUrl = UriComponentsBuilder
-            .fromUriString(frontUrl + "auth/oauth2/callback")
-            .queryParam("accessToken", accessToken)
-            .queryParam("refreshToken", refreshToken)
-            .queryParam("accessTokenExpiresIn", accessTokenExpiresIn)
-            .queryParam("refreshTokenExpiresIn", refreshTokenExpiresIn)
-            .build()
-            .toUriString();
-
-    res.sendRedirect(redirectUrl);
-    SecurityContextHolder.getContext().setAuthentication(authentication);
+# 문제 상황 3: 인증서 없이 HTTPS 설정 먼저 로드
+# nginx/nginx.conf
+server {
+    listen 443 ssl;
+        ssl_certificate /etc/nginx/ssl/live/krocs.site/fullchain.pem;
+            # → 파일이 없어서 nginx 시작 실패
 }`
           },
           solution: {
             steps: [
               {
-                step: "환경변수 URL 형식 수정",
-                detail: "환경변수 값 끝에 `/` 추가하여 올바른 URL 형식으로 수정",
-                code: `// 수정된 환경변수 설정
-FRONT_URL=https://pet-talk.onrender.com/`
+                "step": "1. GitHub Actions에서 환경변수 명시적 전달",
+                "detail": "SSH 스크립트 내부에서 환경변수를 export로 재설정",
+                "code": "# .github/workflows/backend-cicd.yml\n- name: Deploy to EC2\n  uses: appleboy/ssh-action@v1.0.3\n  with:\n    script: |\n      # 환경변수 명시적 설정\n      export DOCKER_HUB_USERNAME=\"${{ secrets.DOCKER_HUB_USERNAME }}\"\n      export DOCKER_HUB_REPOSITORY=\"${{ secrets.DOCKER_HUB_REPOSITORY }}\"\n      export DB_URL=\"${{ secrets.DB_URL }}\"\n      export DB_USER=\"${{ secrets.DB_USER }}\"\n      export DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"\n      \n      cd /home/ubuntu/krocs-deploy\n      docker pull $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:latest\n      docker compose -f docker-compose.prod.yml up -d"
+              },
+              {
+                "step": "2. SSL 설정 순서 재구성: HTTP → SSL 발급 → HTTPS",
+                "detail": "nginx를 HTTP 모드로 먼저 시작하고, SSL 인증서 발급 후 HTTPS 설정 적용",
+                "code": "# deploy/scripts/setup-ssl.sh 수정\n#!/bin/bash\n\necho \"🔧 Step 1: HTTP 모드로 nginx 시작\"\n# HTTPS 설정 임시 비활성화\nmv nginx/conf.d/default.conf nginx/conf.d/default.conf.backup\ncat > nginx/conf.d/http-only.conf << 'HTTPCONF'\nserver {\n    listen 80;\n    server_name krocs.site;\n    location /.well-known/acme-challenge/ {\n        root /var/www/certbot;\n    }\n}\nHTTPCONF\n\ndocker compose -f docker-compose.prod.yml up -d nginx\n\necho \"🔒 Step 2: SSL 인증서 발급\"\ndocker compose -f docker-compose.prod.yml run --rm certbot certonly \\\n  --webroot --webroot-path=/var/www/certbot \\\n  --email admin@krocs.site \\\n  --agree-tos --no-eff-email \\\n  -d krocs.site\n\necho \"✅ Step 3: HTTPS 설정 활성화\"\nrm nginx/conf.d/http-only.conf\nmv nginx/conf.d/default.conf.backup nginx/conf.d/default.conf\ndocker exec krocs-nginx nginx -s reload"
+              },
+              {
+                "step": "3. Docker 캐시 완전 정리 및 재시작",
+                "detail": "손상된 Docker 캐시와 네트워크를 모두 제거하고 클린 상태에서 재배포",
+                "code": "# EC2에서 실행\necho \"🧹 Docker 캐시 완전 정리\"\ndocker compose -f docker-compose.prod.yml down -v\ndocker system prune -a -f\ndocker volume prune -f\ndocker network prune -f\n\necho \"🚀 클린 상태에서 재배포\"\ndocker compose -f docker-compose.prod.yml up -d"
+              },
+              {
+                "step": "4. docker-compose 명령어 통일",
+                "detail": "모든 스크립트에서 docker compose (v2) 명령어로 통일",
+                "code": "# 모든 스크립트 수정\n# Before: docker-compose up -d\n# After:  docker compose -f docker-compose.prod.yml up -d\n\n# 버전 확인\ndocker compose version  # Docker Compose version v2.x.x"
               }
             ]
           },
           results: [
-            { metric: "OAuth2 리다이렉트", value: "정상 동작" },
-            { metric: "사용자 인증 플로우", value: "완전 복구" }
+            {
+              "metric": "nginx 재시작 문제",
+              "value": "완전 해결 (안정적 운영)"
+            },
+            {
+              "metric": "SSL 인증서 발급",
+              "value": "자동화 성공"
+            }
           ]
         }
       ],
-      github: ["https://github.com/Lucky-0111"],
-      demo: "https://jinsohee.store/",
-      period: "2025.04.28 ~ 2025.05.14"
-    },
-    {
-      title: "StudyGround",
-      teamSize: 3,
-      subtitle: "다양한 기능을 통합한 스터디 플랫폼",
-      description: "온라인 스터디를 위한 종합 협업 플랫폼으로, Express.js + React 기반의 풀스택 웹 서비스와 WebRTC 화상회의 시스템을 통합한 실시간 협업 솔루션 서비스",
-      tech: ["Node.js", "Express.js", "Sequelize ORM", "MySQL", "Socket.io", "React 18", "Styled-Components", "Ant Design", "WebRTC", "STUN/TURN 서버", "Multer", "Passport.js"],
-      role: "백엔드 전담 개발",
-      features: [
-        "실시간 화상회의 시스템: WebRTC 기반 P2P 영상 통화 및 화면 공유",
-        "실시간 채팅방: Socket.io 기반 메시지 전송 및 룸 관리",
-        "종합 스터디 관리: 통합 일정 관리, 스터디 생성/관리, 과제 시스템, 공지사항, 자료 공유"
-      ],
-      troubleshooting: [
-        {
-          title: "Socket.io Room 데이터 누수 해결",
-          difficulty: "⭐⭐⭐⭐",
-          timeSpent: "2일",
-          problem: {
-            description: "Socket.io 연결 종료 후 Room 데이터가 메모리에서 정리되지 않는 문제",
-            situations: [
-              "사용자가 브라우저를 갑자기 닫을 때",
-              "네트워크 연결이 불안정한 상황",
-              "화상회의 중 강제 종료"
-            ],
-            impact: "Room 데이터 누적으로 메모리 사용량 지속 증가",
-            beforeCode: `// 기존 코드: 연결 해제 시 룸 정리 로직 부족
-chat.on('connection', async (socket) => {
-    console.log('chat 네임스페이스 접속');
-    
-    socket.on('join', async (data) => {
-        socket.join(data);
-        req.session.roomId = data;
-        // 룸 데이터 저장하지만 정리 로직 없음
-        socket.to(data).emit('join', {
-            user: 'system',
-            chat: \`\${user.uName}님이 입장하셨습니다.\`
-        });
-    });
-
-    socket.on('disconnect', async () => {
-        console.log('클라이언트 접속 해제');
-        // 단순히 사용자만 퇴장 처리, 룸 정리 없음
-        socket.to(roomId).emit('exit', {
-            user: 'system',
-            chat: \`\${user.uName}님이 퇴장하셨습니다.\`
-        });
-    });
-});`
-          },
-          solution: {
-            steps: [
-              {
-                step: "연결 해제 시 룸 정리 로직 추가",
-                detail: "사용자 퇴장 시 룸에 남은 사용자 수를 확인하여 빈 룸 자동 제거",
-                code: `socket.on('disconnect', async () => {
-    console.log('클라이언트 접속 해제', ip, socket.id);
-    const roomId = req.session.roomId;
-    console.log('roomId', roomId);
-    
-    // 현재 룸에 남은 사용자 수 확인
-    const currentRoom = chat.adapter.rooms.get(roomId);
-    const userCount = currentRoom ? currentRoom.size : 0;
-    
-    // 룸에 사용자가 없으면 룸 데이터 제거
-    if(userCount === 0) {
-        await removeRoom(roomId);
-        room.emit('removeRoom', roomId);
-        console.log('방 제거 요청 성공');
-    }
-    
-    socket.to(roomId).emit('exit', {
-        user: 'system',
-        chat: \`\${user.uName}님이 퇴장하셨습니다.\`
-    });
-});`
-              },
-              {
-                step: "데이터베이스 룸 제거 서비스 구현",
-                detail: "메모리뿐만 아니라 데이터베이스에서도 빈 룸 정보 제거",
-                code: `// services/chat.js
-const { removeRoom } = require('./services/chat');
-
-const removeRoom = async (roomId) => {
-    try {
-        // 데이터베이스에서 룸 정보 제거
-        await Room.destroy({
-            where: { id: roomId }
-        });
-        console.log(\`Room \${roomId} removed from database\`);
-    } catch (error) {
-        console.error('Error removing room:', error);
-    }
-};`
-              },
-              {
-                step: "네임스페이스별 룸 관리 최적화",
-                detail: "chat과 room 네임스페이스 간 룸 상태 동기화",
-                code: `// 룸 제거 시 모든 네임스페이스에 알림
-if(userCount === 0) {
-    await removeRoom(roomId);
-    // room 네임스페이스에 룸 제거 알림
-    room.emit('removeRoom', roomId);
-    console.log('방 제거 요청 성공');
-}`
-              }
-            ]
-          },
-          results: [
-            { metric: "메모리 누수", value: "100% 해결" },
-            { metric: "룸 관리 안정성", value: "99.5% 향상" },
-            { metric: "서버 안정성", value: "24시간 무중단 운영" }
-          ]
-        },
-        {
-          title: "파일 업로드 동시성 문제 해결",
-          difficulty: "⭐⭐⭐",
-          timeSpent: "1일",
-          problem: {
-            description: "여러 사용자가 동시에 파일을 업로드할 때 파일명 충돌 및 덮어쓰기 문제",
-            situations: [
-              "같은 파일명으로 동시 업로드",
-              "파일 저장 중 다른 요청 간섭",
-              "임시 파일 정리 실패"
-            ],
-            impact: "파일 손실 및 데이터 무결성 문제",
-            beforeCode: `// 기존 코드: 파일명 충돌 가능성 있음
-const upload = multer({
-    storage: multer.diskStorage({
-        destination(req, file, cb){
-            cb(null, 'uploads/')
-        },
-        filename(req, file, cb) {
-            // 원본 파일명 그대로 사용 - 충돌 위험
-            const ext = path.extname(file.originalname);
-            const baseName = path.basename(file.originalname, ext);
-            cb(null, baseName + ext);
-        },
-    }),
-    limits: { fileSize: 10 * 1024 * 1024 },
-});
-
-exports.submitFiles = async (req, res, next) => {
-    // 동시성 제어 없이 바로 파일 처리
-    const fileStorage = await FileStorage.create({
-        userId: userId,
-        boardId: boardId,
-    });
-    // 파일 업로드 처리...
-};`
-          },
-          solution: {
-            steps: [
-              {
-                step: "고유 파일명 생성 시스템 구현",
-                detail: "타임스탬프와 원본 파일명을 조합하여 고유한 파일명 생성",
-                code: `const upload = multer({
-    storage: multer.diskStorage({
-        destination(req, file, cb){
-            cb(null, 'uploads/')
-        },
-        filename(req, file, cb) {
-            const ext = path.extname(file.originalname);
-            const baseName = Buffer.from(path.basename(file.originalname, ext), 'utf-8').toString('utf-8');
-            // 타임스탬프를 포함한 고유 파일명 생성
-            cb(null, \`\${baseName}_\${Date.now()}\${ext}\`);
-        },
-    }),
-    limits: { fileSize: 10 * 1024 * 1024 },
-});`
-              },
-              {
-                step: "사용자별 업로드 제한 로직 추가",
-                detail: "동시 업로드 방지를 위한 사용자별 mutex 구현",
-                code: `// 사용자별 업로드 상태 관리
-const uploadMutex = new Map();
-
-exports.submitFiles = async (req, res, next) => {
-    const userId = req.user.id;
-    const boardId = req.params.id;
-
-    // 동시 업로드 방지
-    if (uploadMutex.has(userId)) {
-        return res.status(429).json({ 
-            error: '파일 업로드가 진행 중입니다. 잠시 후 다시 시도해주세요.' 
-        });
-    }
-
-    uploadMutex.set(userId, true);
-
-    try {
-        const user = await User.findOne({ where: { id: userId } });
-        if (!user) {
-            return res.status(404).json({ error: '사용자를 찾을 수 없습니다.' });
-        }
-
-        // 파일 업로드 처리
-        const fileStorage = await FileStorage.create({
-            userId: userId,
-            boardId: boardId,
-        });
-
-        // 파일 레코드 생성
-        if (req.files && req.files.length > 0) {
-            const fileRecords = req.files.map((file) => ({
-                fileName: file.filename,
-                fileableType: 'FileStorage',
-                fileableId: fileStorage.id,
-            }));
-            await File.bulkCreate(fileRecords);
-        }
-
-        return res.status(201).json({
-            success: true,
-            message: '파일저장소 추가 성공',
-            fileStorage,
-        });
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ error: '서버 실패' });
-    } finally {
-        // mutex 해제
-        uploadMutex.delete(userId);
-    }
-};`
-              },
-              {
-                step: "파일 업로드 실패 시 정리 로직",
-                detail: "업로드 실패 시 임시 파일과 데이터베이스 레코드 자동 정리",
-                code: `// 파일 업로드 실패 시 정리 함수
-const cleanupFailedUpload = async (fileStorageId, uploadedFiles) => {
-    try {
-        // 데이터베이스 레코드 삭제
-        await FileStorage.destroy({ where: { id: fileStorageId } });
-        await File.destroy({ where: { fileableId: fileStorageId } });
-        
-        // 업로드된 파일들 삭제
-        uploadedFiles.forEach(file => {
-            const filePath = path.join('uploads', file.filename);
-            fs.unlink(filePath, (err) => {
-                if (err) console.error(\`파일 삭제 오류: \${err}\`);
-            });
-        });
-        
-        console.log('업로드 실패 정리 완료');
-    } catch (error) {
-        console.error('정리 중 오류:', error);
-    }
-};`
-              }
-            ]
-          },
-          results: [
-            { metric: "파일 충돌", value: "0건" },
-            { metric: "업로드 성공률", value: "85% → 99%" },
-            { metric: "스토리지 효율성", value: "30% 개선" }
-          ]
-        },
-      ],
-      github: ["https://github.com/soheeGit/StudyGround", "https://github.com/soheeGit/WebRTC-backend"],
-      period: "2024.07.01 ~ 2024.09.04",
-      award: "🏆 2024년 한국공학대학교 공학대전 디지털 전시 우수작 선정"
+      github: ["https://github.com/seeds-hotpack/krocs-backend", "https://github.com/seeds-hotpack/krocs-frontend"],
+      demo: "https://www.krocs.life/",
+      period: "2025.08.08 ~ 진행중"
     }
   ];
 
@@ -881,117 +553,6 @@ const cleanupFailedUpload = async (fileStorageId, uploadedFiles) => {
                           <span className="text-gray-900 font-medium">{contact.label}</span>
                         </a>
                     ))}
-                  </div>
-                </div>
-              </div>
-
-              <div className="space-y-8 border-t pt-12">
-                <h2 className="text-2xl font-bold text-gray-900">개발 철학</h2>
-
-                <div className="grid md:grid-cols-3 gap-8">
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center">
-                        <span className="text-blue-600 text-lg">🎯</span>
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-800">문제의 본질 파악</h3>
-                    </div>
-                    <p className="text-gray-600 leading-relaxed">
-                      기능 개발 전에 '왜 이 기능이 필요한가?'를 먼저 질문하는 습관을 가지고 있습니다.
-                      우리.zip에서는 공동생활의 핵심 문제인 '정보 비대칭'을 해결하기 위해 실시간 알림에 집중했던 것처럼 사용자가 겪는 본질적인 문제를 먼저 파악하고, 그것을 해결할 수 있는 최소한의 핵심 기능에 집중하는 방식으로 개발합니다.
-                    </p>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-green-100 rounded-lg flex items-center justify-center">
-                        <span className="text-green-600 text-lg">🔧</span>
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-800">단순함의 가치</h3>
-                    </div>
-                    <p className="text-gray-600 leading-relaxed">
-                      복잡한 구조보다는 읽기 쉽고 유지보수하기 쉬운 코드를 추구합니다.
-                      SSE 메모리 누수 문제를 해결할 때도 복잡한 라이브러리 대신
-                      단순한 스케줄러와 하트비트 검증으로 해결했듯이, 간단하면서도 효과적인 솔루션을 선호합니다.
-                    </p>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-purple-100 rounded-lg flex items-center justify-center">
-                        <span className="text-purple-600 text-lg">📚</span>
-                      </div>
-                      <h3 className="text-lg font-semibold text-gray-800">체계적 학습</h3>
-                    </div>
-                    <p className="text-gray-600 leading-relaxed">
-                      새로운 기술을 배우는 것도 중요하지만, 배운 것을 체계적으로 정리하고
-                      실무에서 안정적으로 사용할 수 있게 만드는 것을 더 중요하게 생각합니다.
-                      매일 TIL 작성으로 데브코스 1위를 기록한 것처럼, 꾸준한 기록과 정리를 통해 지식을 내재화합니다.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="space-y-6">
-                  <div className="bg-gray-50 p-6 rounded-xl">
-                    <h3 className="text-lg font-semibold text-gray-900 mb-4">💭 개발에 대한 생각</h3>
-                    <div className="space-y-4">
-                      <div className="flex items-start gap-3">
-                        <span className="text-gray-400 mt-1 text-2xl">"</span>
-                        <div className="space-y-3">
-                          <p className="text-gray-700 leading-relaxed font-medium text-lg">
-                            완벽한 코드는 없지만, 더 나은 코드는 항상 존재한다
-                          </p>
-                          <p className="text-gray-600 leading-relaxed">
-                            동시성 문제와 메모리 누수를 겪으면서 깨달은 것은 모든 상황을 예측할 수는 없지만,
-                            발생할 수 있는 문제들을 미리 고려하고 대비책을 마련하는 것의 중요성입니다.
-                            클린코드 스터디를 통해 배운 원칙들을 실제 프로젝트에 적용하며,
-                            코드 리뷰와 테스트 코드 작성을 통해 더 안정적인 서비스를 만들어가고 있습니다.
-                          </p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="bg-white border border-gray-200 p-6 rounded-xl">
-                      <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                        <span className="text-yellow-500">⚡</span>
-                        실무에서의 접근법
-                      </h4>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li>• <strong>우리.zip:</strong> 500명 동시 사용자 환경에서 안정성 확보</li>
-                        <li>• <strong>PetTalk:</strong> 완전 자동화 CI/CD로 개발 효율성 극대화</li>
-                        <li>• <strong>StudyGround:</strong> WebRTC + Socket.io로 실시간 협업 환경 구축</li>
-                      </ul>
-                    </div>
-
-                    <div className="bg-white border border-gray-200 p-6 rounded-xl">
-                      <h4 className="font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                        <span className="text-green-500">🌱</span>
-                        성장하는 개발자
-                      </h4>
-                      <ul className="space-y-2 text-sm text-gray-600">
-                        <li>• <strong>기록 습관:</strong> TIL 작성량 1위로 체계적 학습 관리</li>
-                        <li>• <strong>협업 문화:</strong> 클린코드 스터디를 통한 토론 기반 성장</li>
-                        <li>• <strong>도전 정신:</strong> Seeds 커뮤니티에서 지속적인 프로젝트 참여</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-xl border border-blue-100">
-                  <div className="flex items-start gap-4">
-                    <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <span className="text-blue-600 text-xl">💡</span>
-                    </div>
-                    <div className="space-y-2">
-                      <h4 className="font-semibold text-gray-900">앞으로의 목표</h4>
-                      <p className="text-gray-700 leading-relaxed">
-                        <strong>'유연하게 사고하고, 단단하게 구현하는 개발자'</strong>가 되는 것이 저의 목표입니다.
-                        새로운 기술에 열린 마음을 유지하면서도, 검증된 방법으로 안정적인 서비스를 구축하는
-                        균형감을 갖춘 개발자로 성장해나가고 있습니다.
-                      </p>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -1214,30 +775,6 @@ const cleanupFailedUpload = async (fileStorageId, uploadedFiles) => {
                     </div>
                   </div>
                 </div>
-
-                {/* Tech Experience Summary */}
-                <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 lg:p-8 rounded-2xl">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-6">💼 실무 경험 요약</h3>
-                  <div className="grid md:grid-cols-2 gap-8">
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold text-gray-900">프로젝트 적용 경험</h4>
-                      <ul className="space-y-2 text-sm text-gray-700">
-                        <li>• <strong>우리.zip:</strong> Spring Boot + PostgreSQL + Redis + AWS</li>
-                        <li>• <strong>PetTalk:</strong> Spring Boot + MySQL + Docker</li>
-                        <li>• <strong>StudyGround:</strong> Express.js + React + WebRTC + Socket.io</li>
-                      </ul>
-                    </div>
-                    <div className="space-y-4">
-                      <h4 className="text-lg font-semibold text-gray-900">핵심 역량</h4>
-                      <ul className="space-y-2 text-sm text-gray-700">
-                        <li>• RESTful API 설계 및 구현</li>
-                        <li>• 데이터베이스 설계 및 성능 최적화</li>
-                        <li>• 실시간 통신 시스템 구축 (SSE, WebRTC)</li>
-                        <li>• CI/CD 파이프라인 구축 및 자동화 배포</li>
-                      </ul>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </section>
@@ -1422,7 +959,7 @@ const cleanupFailedUpload = async (fileStorageId, uploadedFiles) => {
                             </div>
                         )}
 
-                        {project.title === "PetTalk" && (
+                        {project.title === "Krocs" && (
                             <div className="space-y-4">
                               <div className="flex items-center justify-between">
                                 <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
@@ -1432,12 +969,12 @@ const cleanupFailedUpload = async (fileStorageId, uploadedFiles) => {
                               </div>
                               <div className="bg-gray-50 p-4 rounded-xl">
                                 <img
-                                    src={pettalkDiagram}
-                                    alt="PetTalk 시스템 아키텍처 다이어그램"
+                                    src={krocsDiagram}
+                                    alt="Krocs 시스템 아키텍처 다이어그램"
                                     className="w-full rounded-lg border border-gray-200 shadow-sm"
                                 />
                                 <p className="text-xs text-gray-500 text-center mt-2">
-                                  Spring Boot + Express.js + LangChain4j 기반 AI 챗봇 시스템 아키텍처
+                                  krocs 시스템 아키텍처
                                 </p>
                               </div>
                             </div>
@@ -1719,233 +1256,7 @@ const cleanupFailedUpload = async (fileStorageId, uploadedFiles) => {
                         <div className="space-y-4">
                           <h3 className="text-lg font-semibold text-gray-900">기술 스택</h3>
                           <div className="grid grid-cols-2 gap-2">
-                            {['Java 17', 'Spring Framework', 'Bootstrap 5', 'JSP', 'Google Gemini', '영화진흥위원회 API'].map((tech, idx) => (
-                                <div key={idx} className="px-3 py-2 bg-gray-50 rounded-lg text-center">
-                                  <span className="text-gray-800 font-medium text-sm">{tech}</span>
-                                </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 네이버 API 기반 책 검색 서비스 */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8 hover:shadow-md transition-shadow">
-                  <div className="space-y-6">
-                    {/* Header */}
-                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                      <div className="space-y-3">
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-                          <h2 className="text-2xl font-bold text-gray-900">네이버 API 기반 책 검색 서비스</h2>
-                          <div className="flex flex-wrap gap-2">
-                            <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
-                              1일 개발
-                            </span>
-                            <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm font-medium">
-                              API 연동
-                            </span>
-                          </div>
-                        </div>
-                        <p className="text-lg text-gray-600">네이버 API를 기반으로 책을 검색하고 상세 정보를 확인할 수 있는 검색 서비스</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Calendar size={16} />
-                            2025.05.10 ~ 2025.05.10
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <User size={16} />
-                            개인 프로젝트
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap gap-3">
-                        <a
-                            href="https://github.com/soheeGit/naver_book_search"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
-                        >
-                          <Github size={16} />
-                          GitHub
-                        </a>
-                        <a
-                            href="https://naver-book-search.onrender.com"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors text-sm font-medium"
-                        >
-                          <ExternalLink size={16} />
-                          Live Demo
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="space-y-6">
-                      {/* Images */}
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-900">프로젝트 미리보기</h3>
-                        <div className="max-w-2xl mx-auto">
-                          <div className="space-y-2">
-                            <img 
-                              src={bookSearch} 
-                              alt="네이버 API 기반 책 검색 서비스" 
-                              className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-                            />
-                            <p className="text-xs text-gray-500 text-center">책 검색 및 상세 정보 화면</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid lg:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-900">핵심 기능</h3>
-                          <ul className="space-y-2">
-                            <li className="flex items-start gap-3">
-                              <div className="w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <span className="text-xs font-bold">1</span>
-                              </div>
-                              <span className="text-gray-700">도서 검색 기능</span>
-                            </li>
-                            <li className="flex items-start gap-3">
-                              <div className="w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <span className="text-xs font-bold">2</span>
-                              </div>
-                              <span className="text-gray-700">책의 저자, 출판사 등 상세 정보 제공</span>
-                            </li>
-                            <li className="flex items-start gap-3">
-                              <div className="w-6 h-6 bg-green-100 text-green-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <span className="text-xs font-bold">3</span>
-                              </div>
-                              <span className="text-gray-700">네이버 API 실시간 연동</span>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-900">기술 스택</h3>
-                          <div className="grid grid-cols-2 gap-2">
-                            {['Java (Servlet)', 'HTML', 'CSS', 'JavaScript', 'Naver API'].map((tech, idx) => (
-                                <div key={idx} className="px-3 py-2 bg-gray-50 rounded-lg text-center">
-                                  <span className="text-gray-800 font-medium text-sm">{tech}</span>
-                                </div>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 진격의 거인 사고변환기 */}
-                <div className="bg-white border border-gray-200 rounded-2xl p-6 lg:p-8 hover:shadow-md transition-shadow">
-                  <div className="space-y-6">
-                    {/* Header */}
-                    <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
-                      <div className="space-y-3">
-                        <div className="flex flex-col lg:flex-row lg:items-center gap-3">
-                          <h2 className="text-2xl font-bold text-gray-900">진격의 거인 사고변환기</h2>
-                          <div className="flex flex-wrap gap-2">
-                            <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
-                              1일 개발
-                            </span>
-                            <span className="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-medium">
-                              LLM 활용
-                            </span>
-                          </div>
-                        </div>
-                        <p className="text-lg text-gray-600">진격의 거인 캐릭터들의 사고방식으로 생각을 재해석해주는 LLM 기반 변환기</p>
-                        <div className="flex items-center gap-4 text-sm text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <Calendar size={16} />
-                            2025.06.13 ~ 2025.06.13
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <User size={16} />
-                            개인 프로젝트
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="flex flex-wrap gap-3">
-                        <a
-                            href="https://github.com/soheeGit/titan-thoughts"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
-                        >
-                          <Github size={16} />
-                          GitHub
-                        </a>
-                        <a
-                            href="https://titan-thoughts.onrender.com"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-colors text-sm font-medium"
-                        >
-                          <ExternalLink size={16} />
-                          Live Demo
-                        </a>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div className="space-y-6">
-                      {/* Images */}
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-900">프로젝트 미리보기</h3>
-                        <div className="grid md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <img 
-                              src={titanThoughts1} 
-                              alt="진격의 거인 사고변환기 메인 화면" 
-                              className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-                            />
-                            <p className="text-xs text-gray-500 text-center">메인 화면 및 캐릭터 선택</p>
-                          </div>
-                          <div className="space-y-2">
-                            <img 
-                              src={titanThoughts2} 
-                              alt="사고변환 결과 화면" 
-                              className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
-                            />
-                            <p className="text-xs text-gray-500 text-center">사고변환 결과 및 히스토리</p>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid lg:grid-cols-2 gap-6">
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-900">핵심 기능</h3>
-                          <ul className="space-y-2">
-                            <li className="flex items-start gap-3">
-                              <div className="w-6 h-6 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <span className="text-xs font-bold">1</span>
-                              </div>
-                              <span className="text-gray-700">캐릭터별 사고방식 모방 (에렌, 미카사, 아르민, 리바이 등)</span>
-                            </li>
-                            <li className="flex items-start gap-3">
-                              <div className="w-6 h-6 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <span className="text-xs font-bold">2</span>
-                              </div>
-                              <span className="text-gray-700">Google Gemini API 연동</span>
-                            </li>
-                            <li className="flex items-start gap-3">
-                              <div className="w-6 h-6 bg-purple-100 text-purple-700 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                <span className="text-xs font-bold">3</span>
-                              </div>
-                              <span className="text-gray-700">히스토리 기능 구현</span>
-                            </li>
-                          </ul>
-                        </div>
-
-                        <div className="space-y-4">
-                          <h3 className="text-lg font-semibold text-gray-900">기술 스택</h3>
-                          <div className="grid grid-cols-2 gap-2">
-                            {['Java 17', 'Spring Boot 3', 'Spring Data JPA', 'MySQL/PostgreSQL', 'Google Gemini API'].map((tech, idx) => (
+                            {['Java 17/21', 'Spring Framework', 'Bootstrap 5', 'JSP', 'Google Gemini', '영화진흥위원회 API'].map((tech, idx) => (
                                 <div key={idx} className="px-3 py-2 bg-gray-50 rounded-lg text-center">
                                   <span className="text-gray-800 font-medium text-sm">{tech}</span>
                                 </div>
@@ -2119,15 +1430,6 @@ const cleanupFailedUpload = async (fileStorageId, uploadedFiles) => {
                         <ExternalLink size={12} />
                         <span>Organization</span>
                       </a>
-                      <a
-                          href="https://github.com/seeds-hotpack/team-blog"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors"
-                      >
-                        <ExternalLink size={12} />
-                        <span>팀 블로그</span>
-                      </a>
                     </div>
                   </div>
                 </div>
@@ -2184,15 +1486,6 @@ const cleanupFailedUpload = async (fileStorageId, uploadedFiles) => {
 
                     <div className="flex flex-wrap gap-2 pt-2">
                       <a
-                          href="https://cleancodearchive.site/"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center gap-1 px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-sm hover:bg-gray-200 transition-colors"
-                      >
-                        <ExternalLink size={12} />
-                        <span>아카이브 사이트</span>
-                      </a>
-                      <a
                           href="https://github.com/aibe-clean-code-study/clean-code"
                           target="_blank"
                           rel="noopener noreferrer"
@@ -2207,10 +1500,6 @@ const cleanupFailedUpload = async (fileStorageId, uploadedFiles) => {
               </div>
             </div>
           </section>
-
-
-
-
         </main>
       </div>
   );
