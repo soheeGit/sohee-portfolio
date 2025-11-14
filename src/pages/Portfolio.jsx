@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Github, Mail, ExternalLink, Calendar, Code, Server, AlertTriangle, GraduationCap, Phone, Globe, MapPin, User, Menu, X } from 'lucide-react';
 import profilePhoto from '../assets/KakaoTalk_Photo_2025-07-14-05-20-43.jpeg';
-import profilePhotoSmall from '../assets/진소희증명사진.jpeg';
+import profilePhotoSmall from '../assets/진소희증명사진.jpeg';
 import alertmanagerImage from '../assets/alertmanager.png';
 import woorizipDiagramDark from '../assets/woorizip-dark.png';
 import woorizipDiagramLight from '../assets/woorizip-light.png';
-import krocsDiagram from '../assets/krocs아키텍처다이어그램.png';
+import krocsDiagram from '../assets/krocs아키텍처다이어그램.png';
 // Mini Projects Images
 import movieRecommend1 from '../assets/영화추천1.png';
 import movieRecommend2 from '../assets/영화추천2.png';
@@ -135,7 +135,8 @@ public void cleanupInactiveConnections() {
           results: [
             { metric: "메모리 사용량 감소", value: "80% → 45%" },
             { metric: "메모리 누수 재발생", value: "0건" }
-          ]
+          ],
+          learnings: "SSE 연결 관리의 중요성을 깊이 이해하게 되었습니다. 특히 비정상 종료 상황에서의 리소스 정리와 주기적인 상태 점검의 필요성을 배웠습니다."
         },
         {
           title: "캘린더 일정 동시성 문제 해결",
@@ -265,7 +266,8 @@ public Calendar updateCalendar(Long calendarId, UpdateCalendarRequestDTO request
             { metric: "동시 일정 생성 시 충돌", value: "시간 충돌 검증으로 방지" },
             { metric: "데이터 일관성 보장", value: "비관적 락 적용" },
             { metric: "그룹 일정 충돌 방지", value: "동시 수정 방지" }
-          ]
+          ],
+          learnings: "데이터베이스 트랜잭션과 락의 중요성을 실전에서 경험했습니다. 비관적 락을 통한 동시성 제어와 도메인 로직에서의 충돌 검증이 데이터 일관성을 보장하는 핵심임을 배웠습니다."
         },
         {
           title: "캘린더 데이터 조회 N+1 쿼리 최적화",
@@ -352,7 +354,8 @@ List<GroupNameProjection> findGroupNamesByGroupIds(@Param("groupIds") Set<UUID> 
           results: [
             { metric: "쿼리 개수", value: "101개 → 3개" },
             { metric: "응답시간", value: "3.2초 → 0.3초" }
-          ]
+          ],
+          learnings: "ORM 사용 시 쿼리 최적화의 중요성을 체감했습니다. 연관 데이터를 일괄 조회하고 메모리에서 매핑하는 패턴이 성능 개선에 얼마나 효과적인지 배웠습니다."
         }
       ],
       github: ["https://github.com/prgrms-aibe-devcourse/AIBE1_FinalProject_LastDance_FE", "https://github.com/prgrms-aibe-devcourse/AIBE1_FinalProject_LastDance_BE"],
@@ -411,22 +414,22 @@ server {
           solution: {
             steps: [
               {
-                "step": "1. GitHub Actions에서 환경변수 명시적 전달",
+                "step": "GitHub Actions에서 환경변수 명시적 전달",
                 "detail": "SSH 스크립트 내부에서 환경변수를 export로 재설정",
                 "code": "# .github/workflows/backend-cicd.yml\n- name: Deploy to EC2\n  uses: appleboy/ssh-action@v1.0.3\n  with:\n    script: |\n      # 환경변수 명시적 설정\n      export DOCKER_HUB_USERNAME=\"${{ secrets.DOCKER_HUB_USERNAME }}\"\n      export DOCKER_HUB_REPOSITORY=\"${{ secrets.DOCKER_HUB_REPOSITORY }}\"\n      export DB_URL=\"${{ secrets.DB_URL }}\"\n      export DB_USER=\"${{ secrets.DB_USER }}\"\n      export DB_PASSWORD=\"${{ secrets.DB_PASSWORD }}\"\n      \n      cd /home/ubuntu/krocs-deploy\n      docker pull $DOCKER_HUB_USERNAME/$DOCKER_HUB_REPOSITORY:latest\n      docker compose -f docker-compose.prod.yml up -d"
               },
               {
-                "step": "2. SSL 설정 순서 재구성: HTTP → SSL 발급 → HTTPS",
+                "step": "SSL 설정 순서 재구성: HTTP → SSL 발급 → HTTPS",
                 "detail": "nginx를 HTTP 모드로 먼저 시작하고, SSL 인증서 발급 후 HTTPS 설정 적용",
                 "code": "# deploy/scripts/setup-ssl.sh 수정\n#!/bin/bash\n\necho \"🔧 Step 1: HTTP 모드로 nginx 시작\"\n# HTTPS 설정 임시 비활성화\nmv nginx/conf.d/default.conf nginx/conf.d/default.conf.backup\ncat > nginx/conf.d/http-only.conf << 'HTTPCONF'\nserver {\n    listen 80;\n    server_name krocs.site;\n    location /.well-known/acme-challenge/ {\n        root /var/www/certbot;\n    }\n}\nHTTPCONF\n\ndocker compose -f docker-compose.prod.yml up -d nginx\n\necho \"🔒 Step 2: SSL 인증서 발급\"\ndocker compose -f docker-compose.prod.yml run --rm certbot certonly \\\n  --webroot --webroot-path=/var/www/certbot \\\n  --email admin@krocs.site \\\n  --agree-tos --no-eff-email \\\n  -d krocs.site\n\necho \"✅ Step 3: HTTPS 설정 활성화\"\nrm nginx/conf.d/http-only.conf\nmv nginx/conf.d/default.conf.backup nginx/conf.d/default.conf\ndocker exec krocs-nginx nginx -s reload"
               },
               {
-                "step": "3. Docker 캐시 완전 정리 및 재시작",
+                "step": "Docker 캐시 완전 정리 및 재시작",
                 "detail": "손상된 Docker 캐시와 네트워크를 모두 제거하고 클린 상태에서 재배포",
                 "code": "# EC2에서 실행\necho \"🧹 Docker 캐시 완전 정리\"\ndocker compose -f docker-compose.prod.yml down -v\ndocker system prune -a -f\ndocker volume prune -f\ndocker network prune -f\n\necho \"🚀 클린 상태에서 재배포\"\ndocker compose -f docker-compose.prod.yml up -d"
               },
               {
-                "step": "4. docker-compose 명령어 통일",
+                "step": "docker-compose 명령어 통일",
                 "detail": "모든 스크립트에서 docker compose (v2) 명령어로 통일",
                 "code": "# 모든 스크립트 수정\n# Before: docker-compose up -d\n# After:  docker compose -f docker-compose.prod.yml up -d\n\n# 버전 확인\ndocker compose version  # Docker Compose version v2.x.x"
               }
@@ -441,7 +444,8 @@ server {
               "metric": "SSL 인증서 발급",
               "value": "자동화 성공"
             }
-          ]
+          ],
+          learnings: "인프라 구축 시 순서와 의존성 관리의 중요성을 배웠습니다. 특히 Docker 환경에서 환경변수 전달 방식과 SSL 설정 단계별 진행의 필요성을 깊이 이해하게 되었습니다."
         }
       ],
       github: ["https://github.com/seeds-hotpack/krocs-backend", "https://github.com/seeds-hotpack/krocs-frontend"],
@@ -472,19 +476,19 @@ server {
             <div className="flex items-center space-x-3">
               <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
                 {profilePhotoSmall ? (
-                  <img 
-                    src={profilePhotoSmall} 
-                    alt="진소희" 
-                    className="w-full h-full object-cover rounded-full" 
-                    onError={(e) => {
-                      console.error('Profile photo failed to load:', e);
-                      console.error('Image source:', profilePhotoSmall);
-                      e.target.style.display = 'none';
-                    }}
-                    onLoad={() => console.log('Profile photo loaded successfully')}
-                  />
+                    <img
+                        src={profilePhotoSmall}
+                        alt="진소희"
+                        className="w-full h-full object-cover rounded-full"
+                        onError={(e) => {
+                          console.error('Profile photo failed to load:', e);
+                          console.error('Image source:', profilePhotoSmall);
+                          e.target.style.display = 'none';
+                        }}
+                        onLoad={() => console.log('Profile photo loaded successfully')}
+                    />
                 ) : (
-                  <User size={20} className="text-gray-600" />
+                    <User size={20} className="text-gray-600" />
                 )}
               </div>
               <div>
@@ -512,7 +516,7 @@ server {
         {/* 메인 콘텐츠 - 모든 섹션을 세로로 배치 */}
         <main className="max-w-6xl mx-auto">
           {/* About Section */}
-          <section id="about" className="min-h-screen p-6 lg:p-12">
+          <section id="about" className="p-6 lg:p-12">
             <div className="space-y-12 py-8 lg:py-16">
               {/* Hero Section with Photo */}
               <div className="flex flex-col lg:flex-row gap-8 lg:gap-12 items-center">
@@ -779,14 +783,11 @@ server {
             </div>
           </section>
 
-
-
           {/* Projects Section */}
           <section id="projects" className="min-h-screen p-6 lg:p-12 border-t border-gray-200">
             <div className="space-y-8 py-8">
               <div className="space-y-3">
                 <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">Projects</h1>
-                <p className="text-lg lg:text-xl text-gray-600">실무에서 활용 가능한 기술들을 적용한 프로젝트</p>
                 <div className="w-20 h-1 bg-gray-900 rounded-full"></div>
               </div>
 
@@ -825,7 +826,7 @@ server {
                               <Calendar size={16} />
                               {project.period}
                             </span>
-                            <span className="flex items-center gap-1">
+                                <span className="flex items-center gap-1">
                               <User size={16} />
                               팀 {project.teamSize}명
                             </span>
@@ -842,7 +843,7 @@ server {
                                          className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors text-sm font-medium"
                                       >
                                         <Github size={16} />
-{project.title === 'StudyGround' ? (idx === 0 ? 'GitHub' : '화상회의') : project.github.length > 1 ? (idx === 0 ? 'Frontend' : 'Backend') : 'GitHub'}
+                                        {project.title === 'StudyGround' ? (idx === 0 ? 'GitHub' : '화상회의') : project.github.length > 1 ? (idx === 0 ? 'Frontend' : 'Backend') : 'GitHub'}
                                       </a>
                                   ))
                               ) : (
@@ -947,10 +948,10 @@ server {
                                 </button>
                               </div>
                               <div className="bg-gray-50 p-4 rounded-xl">
-                                <img 
-                                  src={isDarkDiagram ? woorizipDiagramDark : woorizipDiagramLight}
-                                  alt="우리.zip 시스템 아키텍처 다이어그램" 
-                                  className="w-full rounded-lg border border-gray-200 shadow-sm"
+                                <img
+                                    src={isDarkDiagram ? woorizipDiagramDark : woorizipDiagramLight}
+                                    alt="우리.zip 시스템 아키텍처 다이어그램"
+                                    className="w-full rounded-lg border border-gray-200 shadow-sm"
                                 />
                                 <p className="text-xs text-gray-500 text-center mt-2">
                                   Spring Boot + PostgreSQL + Redis + AWS 기반 마이크로서비스 아키텍처
@@ -997,7 +998,7 @@ server {
                             </div>
                         )}
 
-                        {/* 트러블슈팅 섹션 */}
+                        {/* 트러블슈팅 섹션 - 개선됨 */}
                         {project.troubleshooting && (
                             <div className="space-y-6">
                               <div className="flex items-center gap-3">
@@ -1010,117 +1011,198 @@ server {
                                 </div>
                               </div>
 
-                                <div className="grid gap-6 max-w-none">
+                              <div className="space-y-8">
                                 {project.troubleshooting.map((trouble, troubleIdx) => (
-                                    <div key={troubleIdx} className="bg-white border border-gray-200 rounded-xl p-6 hover:shadow-md transition-shadow overflow-hidden">
-                                      <div className="space-y-4">
-                                        {/* 트러블슈팅 헤더 */}
-                                        <div className="flex items-start gap-3">
-                                          <div className="w-6 h-6 bg-gray-900 text-white rounded-md flex items-center justify-center flex-shrink-0 font-bold text-xs">
+                                    <div key={troubleIdx} className="bg-white border-2 border-gray-200 rounded-2xl overflow-hidden hover:shadow-lg transition-shadow">
+                                      {/* 헤더 */}
+                                      <div className="bg-gradient-to-r from-gray-900 to-gray-800 p-6">
+                                        <div className="flex items-start gap-4">
+                                          <div className="w-10 h-10 bg-white text-gray-900 rounded-xl flex items-center justify-center flex-shrink-0 font-bold text-lg">
                                             {troubleIdx + 1}
                                           </div>
                                           <div className="flex-1">
-                                            <h4 className="text-base font-bold text-gray-900 mb-1">{trouble.title}</h4>
-                                            <div className="text-xs text-gray-500">
-                                              난이도: {trouble.difficulty} | 소요시간: {trouble.timeSpent}
+                                            <h4 className="text-xl font-bold text-white mb-2">{trouble.title}</h4>
+                                            <div className="flex flex-wrap gap-3 text-sm">
+                                              <span className="px-3 py-1 bg-white/20 text-white rounded-full">
+                                                난이도: {trouble.difficulty}
+                                              </span>
+                                              <span className="px-3 py-1 bg-white/20 text-white rounded-full">
+                                                소요시간: {trouble.timeSpent}
+                                              </span>
                                             </div>
                                           </div>
                                         </div>
+                                      </div>
 
-                                        {/* 문제 & 해결과정 */}
-                                        <div className="grid xl:grid-cols-2 gap-6">
-                                          {/* 문제 상황 */}
-                                          <div className="space-y-3 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                              <div className="w-2 h-2 bg-red-500 rounded-full"></div>
-                                              <h5 className="text-sm font-semibold text-red-600">문제 상황</h5>
+                                      {/* 컨텐츠 */}
+                                      <div className="p-6 space-y-8">
+                                        {/* 1. 문제 배경 */}
+                                        <div className="space-y-4">
+                                          <div className="flex items-center gap-3">
+                                            <div className="flex items-center justify-center w-8 h-8 bg-red-100 rounded-lg">
+                                              <span className="text-red-600 font-bold">1</span>
                                             </div>
-                                            <div className="bg-red-50 p-3 rounded-lg space-y-2 min-w-0">
-                                              <p className="text-sm text-gray-800 font-medium">{trouble.problem.description}</p>
-                                              {trouble.problem.situations && (
-                                                  <ul className="text-xs text-gray-600 space-y-1 ml-3">
+                                            <h5 className="text-lg font-bold text-gray-900">문제 배경</h5>
+                                          </div>
+                                          <div className="bg-red-50 border-l-4 border-red-500 p-5 rounded-r-lg space-y-4">
+                                            <p className="text-gray-800 leading-relaxed font-medium">
+                                              {trouble.problem.description}
+                                            </p>
+
+                                            {trouble.problem.situations && (
+                                                <div className="space-y-2">
+                                                  <p className="text-sm font-semibold text-gray-700">발생 상황:</p>
+                                                  <ul className="space-y-2">
                                                     {trouble.problem.situations.map((situation, idx) => (
-                                                        <li key={idx}>• {situation}</li>
+                                                        <li key={idx} className="flex items-start gap-2 text-sm text-gray-700">
+                                                          <span className="text-red-500 mt-0.5">▸</span>
+                                                          <span>{situation}</span>
+                                                        </li>
                                                     ))}
                                                   </ul>
-                                              )}
-                                              {trouble.problem.impact && (
-                                                  <div className="bg-red-100 p-2 rounded text-xs text-red-800">
-                                                    <strong>영향:</strong> {trouble.problem.impact}
-                                                  </div>
-                                              )}
-                                              {/* 기존 코드 표시 */}
-                                              {trouble.problem.beforeCode && (
-                                                  <div className="mt-3">
-                                                    <p className="text-xs text-gray-600 mb-2">기존 코드:</p>
-                                                    <div className="bg-gray-900 text-gray-300 p-3 rounded text-xs font-mono overflow-x-auto whitespace-pre min-w-0 w-full">
-                                                      {trouble.problem.beforeCode}
-                                                    </div>
-                                                  </div>
-                                              )}
-                                              {/* SSE 메모리 누수 문제에만 모니터링 이미지 추가 */}
-                                              {trouble.title === "SSE 메모리 누수 해결" && (
-                                                  <div className="mt-3">
-                                                    <p className="text-xs text-gray-600 mb-2">실제 모니터링 결과:</p>
-                                                    <img 
-                                                      src={alertmanagerImage} 
-                                                      alt="메모리 사용률 모니터링 결과" 
-                                                      className="w-full max-w-md mx-auto rounded border border-gray-200"
-                                                    />
-                                                    <p className="text-xs text-gray-500 text-center mt-1">
-                                                      메모리 사용률 80% 이상 지속으로 경고 알림 발생
-                                                    </p>
-                                                  </div>
-                                              )}
-                                              {trouble.problem.before && (
-                                                  <div className="bg-red-100 p-2 rounded text-xs text-red-800">
-                                                    <strong>Before:</strong> {trouble.problem.before}
-                                                    {trouble.problem.responseTime && (
-                                                        <><br/><strong>응답시간:</strong> {trouble.problem.responseTime}</>
-                                                    )}
-                                                  </div>
-                                              )}
-                                            </div>
-                                          </div>
+                                                </div>
+                                            )}
 
-                                          {/* 해결 과정 */}
-                                          <div className="space-y-3 min-w-0">
-                                            <div className="flex items-center gap-2">
-                                              <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                                              <h5 className="text-sm font-semibold text-green-600">해결 과정</h5>
-                                            </div>
-                                            <div className="space-y-2 min-w-0">
-                                              {trouble.solution.steps.map((step, stepIdx) => (
-                                                  <div key={stepIdx} className="bg-green-50 p-3 rounded-lg min-w-0">
-                                                    <p className="text-sm font-medium text-gray-800 mb-1">{step.step}</p>
-                                                    {step.detail && (
-                                                        <p className="text-xs text-gray-700">{step.detail}</p>
-                                                    )}
-                                                    {step.code && (
-                                                        <div className="bg-gray-900 text-green-400 p-2 rounded text-xs font-mono mt-2 overflow-x-auto whitespace-pre min-w-0 w-full">
-                                                          {step.code}
-                                                        </div>
-                                                    )}
-                                                  </div>
-                                              ))}
-                                            </div>
+                                            {trouble.problem.impact && (
+                                                <div className="bg-red-100 border border-red-300 p-4 rounded-lg">
+                                                  <p className="text-sm font-semibold text-red-900 mb-1">영향도</p>
+                                                  <p className="text-sm text-red-800">{trouble.problem.impact}</p>
+                                                </div>
+                                            )}
+
+                                            {/* SSE 메모리 누수 문제에만 모니터링 이미지 추가 */}
+                                            {trouble.title === "SSE 메모리 누수 해결" && (
+                                                <div className="mt-4">
+                                                  <p className="text-sm font-semibold text-gray-700 mb-3">실제 모니터링 결과:</p>
+                                                  <img
+                                                      src={alertmanagerImage}
+                                                      alt="메모리 사용률 모니터링 결과"
+                                                      className="w-full rounded-lg border-2 border-gray-200 shadow-sm"
+                                                  />
+                                                  <p className="text-xs text-gray-600 text-center mt-2">
+                                                    메모리 사용률 80% 이상 지속으로 경고 알림 발생
+                                                  </p>
+                                                </div>
+                                            )}
                                           </div>
                                         </div>
 
-                                        {/* 결과 */}
-                                        {trouble.results && (
-                                            <div className="bg-gray-50 p-4 rounded-lg">
-                                              <h5 className="text-sm font-semibold text-gray-900 mb-2">📊 해결 결과</h5>
-                                              <div className={`grid gap-3 ${trouble.results.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
-                                                {trouble.results.map((result, resultIdx) => (
-                                                    <div key={resultIdx} className="text-center">
-                                                      <div className="text-lg font-bold text-gray-900">{result.value}</div>
-                                                      <div className="text-xs text-gray-600">{result.metric}</div>
+                                        {/* 2. 해결 방법 */}
+                                        <div className="space-y-4">
+                                          <div className="flex items-center gap-3">
+                                            <div className="flex items-center justify-center w-8 h-8 bg-blue-100 rounded-lg">
+                                              <span className="text-blue-600 font-bold">2</span>
+                                            </div>
+                                            <h5 className="text-lg font-bold text-gray-900">해결 방법</h5>
+                                          </div>
+                                          <div className="space-y-4">
+                                            {trouble.solution.steps.map((step, stepIdx) => (
+                                                <div key={stepIdx} className="bg-blue-50 border-l-4 border-blue-500 p-5 rounded-r-lg space-y-3">
+                                                  <div className="flex items-start gap-3">
+                                                    <div className="flex-shrink-0 w-6 h-6 bg-blue-600 text-white rounded-full flex items-center justify-center text-xs font-bold">
+                                                      {stepIdx + 1}
                                                     </div>
-                                                ))}
+                                                    <div className="flex-1 space-y-2">
+                                                      <p className="font-semibold text-gray-900">{step.step}</p>
+                                                      {step.detail && (
+                                                          <p className="text-sm text-gray-700 leading-relaxed">{step.detail}</p>
+                                                      )}
+                                                    </div>
+                                                  </div>
+                                                  {step.code && (
+                                                      <div className="mt-3">
+                                                        <div className="bg-gray-900 rounded-lg p-4 overflow-x-auto">
+                                                          <pre className="text-xs text-green-400 font-mono leading-relaxed whitespace-pre">
+                                                            {step.code}
+                                                          </pre>
+                                                        </div>
+                                                      </div>
+                                                  )}
+                                                </div>
+                                            ))}
+                                          </div>
+                                        </div>
+
+                                        {/* 3. 이전 코드와 비교 */}
+                                        {trouble.problem.beforeCode && (
+                                            <div className="space-y-4">
+                                              <div className="flex items-center gap-3">
+                                                <div className="flex items-center justify-center w-8 h-8 bg-purple-100 rounded-lg">
+                                                  <span className="text-purple-600 font-bold">3</span>
+                                                </div>
+                                                <h5 className="text-lg font-bold text-gray-900">이전 코드와 비교</h5>
+                                              </div>
+                                              <div className="grid lg:grid-cols-2 gap-4">
+                                                {/* Before */}
+                                                <div className="space-y-2">
+                                                  <div className="flex items-center gap-2 px-3 py-2 bg-red-100 rounded-t-lg">
+                                                    <span className="text-red-700 font-semibold text-sm">❌ Before</span>
+                                                  </div>
+                                                  <div className="bg-gray-900 rounded-b-lg p-4 overflow-x-auto border-2 border-red-200">
+                                                    <pre className="text-xs text-gray-300 font-mono leading-relaxed whitespace-pre">
+                                                      {trouble.problem.beforeCode}
+                                                    </pre>
+                                                  </div>
+                                                  {trouble.problem.before && (
+                                                      <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
+                                                        <p className="text-xs text-red-800">
+                                                          <strong>문제점:</strong> {trouble.problem.before}
+                                                        </p>
+                                                      </div>
+                                                  )}
+                                                </div>
+
+                                                {/* After */}
+                                                {trouble.solution.steps[0]?.code && (
+                                                    <div className="space-y-2">
+                                                      <div className="flex items-center gap-2 px-3 py-2 bg-green-100 rounded-t-lg">
+                                                        <span className="text-green-700 font-semibold text-sm">✅ After</span>
+                                                      </div>
+                                                      <div className="bg-gray-900 rounded-b-lg p-4 overflow-x-auto border-2 border-green-200">
+                                                        <pre className="text-xs text-green-400 font-mono leading-relaxed whitespace-pre">
+                                                          {trouble.solution.steps[0].code}
+                                                        </pre>
+                                                      </div>
+                                                      <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                                                        <p className="text-xs text-green-800">
+                                                          <strong>개선점:</strong> {trouble.solution.steps[0].detail}
+                                                        </p>
+                                                      </div>
+                                                    </div>
+                                                )}
                                               </div>
                                             </div>
                                         )}
+
+                                        {/* 4. 배운 점 & 결과 */}
+                                        <div className="space-y-4">
+                                          <div className="flex items-center gap-3">
+                                            <div className="flex items-center justify-center w-8 h-8 bg-green-100 rounded-lg">
+                                              <span className="text-green-600 font-bold">4</span>
+                                            </div>
+                                            <h5 className="text-lg font-bold text-gray-900">해당 경험을 통해 알게된 점</h5>
+                                          </div>
+
+                                          {trouble.results && (
+                                              <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl p-6">
+                                                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                                  {trouble.results.map((result, resultIdx) => (
+                                                      <div key={resultIdx} className="bg-white p-4 rounded-lg shadow-sm border border-green-100">
+                                                        <div className="text-sm text-gray-600 mb-1">{result.metric}</div>
+                                                        <div className="text-xl font-bold text-green-600">{result.value}</div>
+                                                      </div>
+                                                  ))}
+                                                </div>
+
+                                                {/* 추가 학습 내용 */}
+                                                <div className="mt-4 pt-4 border-t border-green-200">
+                                                  <p className="text-sm text-gray-700 leading-relaxed">
+                                                    {trouble.learnings}
+                                                  </p>
+                                                </div>
+                                              </div>
+                                          )}
+                                        </div>
                                       </div>
                                     </div>
                                 ))}
@@ -1146,7 +1228,6 @@ server {
             <div className="space-y-8 py-8">
               <div className="space-y-3">
                 <h1 className="text-3xl lg:text-4xl xl:text-5xl font-bold text-gray-900">Mini Projects</h1>
-                <p className="text-lg lg:text-xl text-gray-600">빠른 개발과 학습을 위한 개인 미니 프로젝트</p>
                 <div className="w-20 h-1 bg-gray-900 rounded-full"></div>
               </div>
 
@@ -1210,18 +1291,18 @@ server {
                         <h3 className="text-lg font-semibold text-gray-900">프로젝트 미리보기</h3>
                         <div className="grid md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <img 
-                              src={movieRecommend1} 
-                              alt="영화 추천 서비스 메인 화면" 
-                              className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                            <img
+                                src={movieRecommend1}
+                                alt="영화 추천 서비스 메인 화면"
+                                className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
                             />
                             <p className="text-xs text-gray-500 text-center">메인 화면 및 박스오피스</p>
                           </div>
                           <div className="space-y-2">
-                            <img 
-                              src={movieRecommend2} 
-                              alt="AI 영화 추천 화면" 
-                              className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
+                            <img
+                                src={movieRecommend2}
+                                alt="AI 영화 추천 화면"
+                                className="w-full rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow"
                             />
                             <p className="text-xs text-gray-500 text-center">AI 기반 영화 추천</p>
                           </div>
@@ -1387,7 +1468,7 @@ server {
                         <span>성적장학금 5회 수상</span>
                       </li>
                       <li className="flex items-start space-x-3 text-gray-700">
-                        <span className="text-green-500 mt-1 flex-shrink-0">✓</span>
+                        <span className="green-500 mt-1 flex-shrink-0">✓</span>
                         <span>2024년 졸업작품 디지털 전시 추천작 선정</span>
                       </li>
                     </ul>
