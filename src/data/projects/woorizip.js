@@ -134,141 +134,10 @@ public void cleanupInactiveConnections() {
                 ]
             },
             results: [
-                { metric: "메모리 사용량 감소", value: "80% → 45%" },
-                { metric: "메모리 누수 재발생", value: "0건" }
+                { metric: "메모리 사용량 감소"},
+                { metric: "메모리 누수 발생 감소"}
             ],
-            learnings: "SSE 연결 관리의 중요성을 깊이 이해하게 되었습니다. 특히 비정상 종료 상황에서의 리소스 정리와 주기적인 상태 점검의 필요성을 배웠습니다."
-        },
-        {
-            title: "캘린더 일정 동시성 문제 해결",
-            difficulty: "⭐⭐⭐⭐",
-            timeSpent: "2일",
-            problem: {
-                description: "여러 룸메이트가 동시에 같은 시간대 일정을 생성할 때 중복 예약 발생",
-                situations: [
-                    "일정 수정 중 다른 사용자가 동일 일정을 수정하여 데이터 일관성 문제",
-                    "그룹 일정에서 여러 사용자가 동시에 수정할 때 마지막 수정만 반영되는 문제"
-                ],
-                beforeCode: `// 기존 코드: 동시성 제어 없이 바로 수정
-@Transactional
-public Calendar updateCalendar(Long calendarId, UpdateCalendarRequestDTO request, UUID userId) {
-    Calendar calendar = getCalendarById(calendarId, userId);
-
-    if (!hasPermission(calendar, userId)) {
-        throw new IllegalArgumentException("해당 일정을 수정할 권한이 없습니다.");
-    }
-
-    // 동시성 제어 없이 바로 수정
-    if (request.getTitle() != null) {
-        calendar.updateTitle(request.getTitle());
-    }
-    if (request.getStartDate() != null && request.getEndDate() != null) {
-        calendar.updateDateTime(request.getStartDate(), request.getEndDate());
-    }
-
-    return calendarRepository.save(calendar);
-}
-
-@Transactional
-public Calendar createCalendar(CreateCalendarRequestDTO request, UUID userId) {
-    validateCalendarRequest(request);
-
-    // 시간 충돌 검증 없이 바로 생성
-    Calendar calendar = Calendar.builder()
-            .title(request.getTitle())
-            .startDate(request.getStartDate())
-            .endDate(request.getEndDate())
-            .userId(userId)
-            .build();
-
-    return calendarRepository.save(calendar);
-}`
-            },
-            solution: {
-                steps: [
-                    {
-                        step: "비관적 락과 충돌 검증 쿼리 추가",
-                        detail: "Repository에 비관적 락과 시간 충돌 검증 로직 구현",
-                        code: `@Lock(LockModeType.PESSIMISTIC_WRITE)
-@Query("SELECT c FROM Calendar c WHERE c.calendarId = :calendarId")
-Optional<Calendar> findByIdWithLock(@Param("calendarId") Long calendarId);
-
-@Query("SELECT c FROM Calendar c WHERE c.groupId = :groupId " +
-       "AND c.type = 'GROUP' " +
-       "AND ((c.startDate <= :endDate AND c.endDate >= :startDate))")
-List<Calendar> findConflictingGroupCalendars(@Param("groupId") UUID groupId,
-                                            @Param("startDate") LocalDateTime startDate,
-                                            @Param("endDate") LocalDateTime endDate);`
-                    },
-                    {
-                        step: "일정 생성 시 시간 충돌 검증 추가",
-                        detail: "동일 시간대 일정 충돌 검증 로직으로 중복 예약 방지",
-                        code: `@Transactional
-public Calendar createCalendar(CreateCalendarRequestDTO request, UUID userId) {
-    validateCalendarRequest(request);
-
-    if (request.getType().equals(CalendarType.GROUP) && request.getGroupId() != null) {
-        // 동일 시간대 일정 충돌 검증
-        List<Calendar> conflictingCalendars = calendarRepository
-            .findConflictingGroupCalendars(
-                request.getGroupId(),
-                request.getStartDate(),
-                request.getEndDate()
-            );
-
-        if (!conflictingCalendars.isEmpty()) {
-            throw new IllegalArgumentException(
-                "해당 시간에 이미 그룹 일정이 있습니다: " +
-                conflictingCalendars.get(0).getTitle()
-            );
-        }
-    }
-
-    Calendar calendar = Calendar.builder()
-            .title(request.getTitle())
-            .startDate(request.getStartDate())
-            .endDate(request.getEndDate())
-            .groupId(request.getGroupId())
-            .userId(userId)
-            .build();
-
-    return calendarRepository.save(calendar);
-}`
-                    },
-                    {
-                        step: "일정 수정 시 비관적 락 적용",
-                        detail: "비관적 락으로 조회하여 동시 수정 방지 및 시간 변경 시 충돌 검증",
-                        code: `@Transactional
-public Calendar updateCalendar(Long calendarId, UpdateCalendarRequestDTO request, UUID userId) {
-    // 비관적 락으로 조회하여 동시 수정 방지
-    Calendar calendar = calendarRepository.findByIdWithLock(calendarId)
-        .orElseThrow(() -> new IllegalArgumentException("일정을 찾을 수 없습니다."));
-
-    if (!hasPermission(calendar, userId)) {
-        throw new IllegalArgumentException("해당 일정을 수정할 권한이 없습니다.");
-    }
-
-    // 시간 변경 시 충돌 검증
-    if (request.getStartDate() != null && request.getEndDate() != null) {
-        validateTimeConflict(calendar, request.getStartDate(), request.getEndDate());
-        calendar.updateDateTime(request.getStartDate(), request.getEndDate());
-    }
-
-    if (request.getTitle() != null) {
-        calendar.updateTitle(request.getTitle());
-    }
-
-    return calendarRepository.save(calendar);
-}`
-                    }
-                ]
-            },
-            results: [
-                { metric: "동시 일정 생성 시 충돌", value: "시간 충돌 검증으로 방지" },
-                { metric: "데이터 일관성 보장", value: "비관적 락 적용" },
-                { metric: "그룹 일정 충돌 방지", value: "동시 수정 방지" }
-            ],
-            learnings: "데이터베이스 트랜잭션과 락의 중요성을 실전에서 경험했습니다. 비관적 락을 통한 동시성 제어와 도메인 로직에서의 충돌 검증이 데이터 일관성을 보장하는 핵심임을 배웠습니다."
+            learnings: "SSE 연결 관리의 중요성을 깊이 이해하게 되었다. 특히나 비정상 종료 상황에서의 리소스 정리와 주기적인 상태 점검의 필요성을 배웠다."
         },
         {
             title: "캘린더 데이터 조회 N+1 쿼리 최적화",
@@ -353,10 +222,10 @@ List<GroupNameProjection> findGroupNamesByGroupIds(@Param("groupIds") Set<UUID> 
                 ]
             },
             results: [
-                { metric: "쿼리 개수", value: "101개 → 3개" },
-                { metric: "응답시간", value: "3.2초 → 0.3초" }
+                { metric: "쿼리 개수 감소"},
+                { metric: "응답시간 감소"}
             ],
-            learnings: "ORM 사용 시 쿼리 최적화의 중요성을 체감했습니다. 연관 데이터를 일괄 조회하고 메모리에서 매핑하는 패턴이 성능 개선에 얼마나 효과적인지 배웠습니다."
+            learnings: "ORM 사용 시 쿼리 최적화의 중요성을 체감했다. 연관 데이터를 일괄 조회하고 메모리에서 매핑하는 패턴이 성능 개선에 얼마나 효과적인지 배웠다."
         }
     ],
     github: [

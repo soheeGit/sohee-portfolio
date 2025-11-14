@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Github, Mail, ExternalLink, Calendar, Code, Server, AlertTriangle, GraduationCap, User } from 'lucide-react';
 import profilePhoto from '../assets/KakaoTalk_Photo_2025-07-14-05-20-43.jpeg';
-import profilePhotoSmall from '../assets/진소희증명사진.jpeg';
 
-// ✨ data 폴더에서 모든 데이터 import
 import {
   profileInfo,
   contactInfo,
@@ -25,21 +23,9 @@ export default function Portfolio() {
 
   return (
       <div className={`min-h-screen bg-white transition-all duration-500 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-        {/* 상단 네비게이션 바 */}
         <header className="bg-white border-b border-gray-200 px-4 py-3 sticky top-0 z-50">
           <div className="max-w-6xl mx-auto flex items-center justify-between">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
-                {profilePhotoSmall ? (
-                    <img
-                        src={profilePhotoSmall}
-                        alt={profileInfo.name}
-                        className="w-full h-full object-cover rounded-full"
-                    />
-                ) : (
-                    <User size={20} className="text-gray-600" />
-                )}
-              </div>
               <div>
                 <h1 className="text-lg font-bold text-gray-900">{profileInfo.name}</h1>
                 <p className="text-sm text-gray-600">{profileInfo.role}</p>

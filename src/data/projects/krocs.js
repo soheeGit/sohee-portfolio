@@ -147,7 +147,7 @@ docker compose version  # Docker Compose version v2.x.x`
                 { metric: "nginx 재시작 문제", value: "완전 해결 (안정적 운영)" },
                 { metric: "SSL 인증서 발급", value: "자동화 성공" }
             ],
-            learnings: "인프라 구축 시 순서와 의존성 관리의 중요성을 배웠습니다. 특히 Docker 환경에서 환경변수 전달 방식과 SSL 설정 단계별 진행의 필요성을 깊이 이해하게 되었습니다."
+            learnings: "인프라 구축 시 순서와 의존성 관리의 중요성을 배웠다. 특히 Docker 환경에서 환경변수 전달 방식과 SSL 설정 단계별 진행의 필요성을 깊이 이해하게 되었다."
         }
     ],
     github: [
